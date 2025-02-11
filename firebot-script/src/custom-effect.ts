@@ -174,7 +174,10 @@ export function registerFirebuttUpdateResponseProbablityEffectType(
             : Number(value);
         await firebutt.updateParameters(
           {
-            responseProbability: newResponseProbability,
+            responseProbability: Math.min(
+              Math.max(newResponseProbability, 0),
+              100
+            ),
           },
           true
         );

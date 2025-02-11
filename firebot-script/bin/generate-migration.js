@@ -21,6 +21,10 @@ const dateFnsTz = require('date-fns-tz');
   const migrationTemplate = `import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class ${className}${timestamp} implements MigrationInterface {
+  get name() {
+    return '${className}${timestamp}';
+  }
+
   async up(queryRunner: QueryRunner): Promise<void> {}
 
   async down(queryRunner: QueryRunner): Promise<void> {}
