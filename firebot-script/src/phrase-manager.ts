@@ -47,7 +47,7 @@ export async function addPhrase({
 }
 
 export async function deletePhrase({ id }: { id: string }): Promise<boolean> {
-  const deleted = await phraseRepository.delete({ id });
+  const deleted = await phraseRepository.softDelete({ id });
 
   if ((deleted.affected ?? 0) > 0) {
     Object.entries(phraseCache).forEach(([key, phrase]) => {

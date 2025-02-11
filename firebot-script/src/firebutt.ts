@@ -9,6 +9,10 @@ import {
 import { Config, JsonDB } from 'node-json-db';
 
 import { register as registerChatClient } from './chat-client';
+import {
+  registerFirebuttAddRemovePhraseEffectType,
+  registerFirebuttUpdateResponseProbablityEffectType,
+} from './custom-effect';
 import { dataSource } from './data-source';
 import { formattedName, scriptOutputName } from '../package.json';
 import { Params } from './params';
@@ -77,6 +81,16 @@ export class Firebutt {
       await dataSource.initialize();
       await registerPhraseManager();
       await registerChatClient(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerFirebuttAddRemovePhraseEffectType(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerFirebuttUpdateResponseProbablityEffectType(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
