@@ -7,26 +7,41 @@ import {
   ScriptModules,
 } from '@crowbartools/firebot-custom-scripts-types';
 import { Config, JsonDB } from 'node-json-db';
+import { DataSource } from 'typeorm';
 
-import { register as registerChatClient } from './chat-client';
+import {
+  register as registerChatClient,
+  unregister as unregisterChatClient,
+} from './chat-client';
 import {
   registerFirebuttAddRemovePhraseEffectType,
   registerFirebuttUpdateResponseProbablityEffectType,
 } from './custom-effect';
-import { dataSource } from './data-source';
 import { formattedName, scriptOutputName } from '../package.json';
+import {
+  register as registerNotificationManager,
+  unregister as unregisterNotificationManager,
+} from './notification-manager';
 import { Params } from './params';
-import { register as registerPhraseManager } from './phrase-manager';
+import {
+  register as registerPhraseManager,
+  unregister as unregisterPhraseManager,
+} from './phrase-manager';
 import { getFirebotProfileDataFolderPath } from './utils/file-system';
 
 export class Firebutt {
+  private _dataSource: DataSource;
   private _firebot: RunRequest<Params>['firebot'];
   private _modules: ScriptModules;
   private _parameters: RunRequestParameters<Params>;
   private _scriptId: string;
   private _startupScriptConfigDb: JsonDB;
 
-  constructor({ firebot, parameters, modules }: RunRequest<Params>) {
+  constructor(
+    { firebot, parameters, modules }: RunRequest<Params>,
+    dataSource: DataSource
+  ) {
+    this._dataSource = dataSource;
     this._firebot = firebot;
     this._modules = modules;
     this._parameters = parameters;
@@ -45,7 +60,9 @@ export class Firebutt {
     (async () => await this.register())();
   }
 
-  cleanup() {}
+  getDataSource() {
+    return this._dataSource;
+  }
 
   getParameters() {
     return this._parameters;
@@ -78,8 +95,11 @@ export class Firebutt {
     this.redirectConsole();
 
     try {
-      await dataSource.initialize();
-      await registerPhraseManager();
+      await registerPhraseManager(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
       await registerChatClient(this, {
         firebot: this._firebot,
         modules: this._modules,
@@ -91,6 +111,11 @@ export class Firebutt {
         parameters: this._parameters,
       });
       await registerFirebuttUpdateResponseProbablityEffectType(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerNotificationManager(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
@@ -132,6 +157,27 @@ export class Firebutt {
         logger.warn(`${formattedName}:`, ...args);
       },
     };
+  }
+
+  unregister() {
+    const { logger } = this._modules;
+
+    try {
+      unregisterChatClient();
+      unregisterPhraseManager();
+      unregisterNotificationManager();
+      logger.info('Firebutt unregistered successfully');
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(
+          'Failed to unregister Firebutt\n',
+          error.message.replace(/\\n/g, '\n\t'),
+          error.stack?.replace(/\\n/g, '\n\t')
+        );
+      } else {
+        logger.error('Failed to unregister Firebutt', error);
+      }
+    }
   }
 
   updateParameters(params: Partial<Params>, saveDb: boolean = false) {

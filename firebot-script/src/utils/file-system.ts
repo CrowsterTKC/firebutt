@@ -1,6 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 
+export function getEnvDatabaseLocation(fileName: string): string {
+  switch (process.env.NODE_ENV) {
+    case 'development':
+    case 'test':
+      return path.join(
+        __dirname,
+        '../../../data',
+        `${process.env.NODE_ENV}_${fileName}`
+      );
+    default:
+    case 'production':
+      return path.join(getFirebotProfileDataFolderPath(), fileName);
+  }
+}
+
 export function getFirebotProfileDataFolderPath(): string {
   let appDataFolderPath: string;
   switch (process.platform) {

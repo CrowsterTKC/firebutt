@@ -1,11 +1,15 @@
-import { FindOneOptions, LessThan } from 'typeorm';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
+import { FindOneOptions, LessThan, Repository } from 'typeorm';
 
-import { dataSource } from './data-source';
 import { Phrase } from './entities/phrase';
+import { Firebutt } from './firebutt';
 import { newGuid } from './guid-handler';
+import { Params } from './params';
 import { AddPhraseProps, UpdatePhraseProps } from './types/phrase-manager';
 
-const phraseRepository = dataSource?.getRepository(Phrase);
+let phraseRepository: Repository<Phrase> =
+  null as unknown as Repository<Phrase>;
 const phraseCache: Record<string, Phrase> = {};
 let purgeExpiredPhrasesJob: NodeJS.Timeout | null = null;
 
@@ -102,7 +106,11 @@ export async function getPhrases(): Promise<Phrase[]> {
   return await phraseRepository.find();
 }
 
-export async function register(): Promise<void> {
+export async function register(
+  firebutt: Firebutt,
+  _: Omit<RunRequest<Params>, 'trigger'>
+): Promise<void> {
+  phraseRepository = firebutt.getDataSource().getRepository(Phrase);
   const phrases = await getPhrases();
   phrases.forEach((phrase) => {
     phrase.originalPhrase.forEach((originalPhrase) => {
@@ -116,12 +124,6 @@ export async function register(): Promise<void> {
     console.log('Running purgeExpiredPhrasesJob');
     await purgeExpiredPhrases();
   }, 1000 * 60);
-}
-
-export function registerSync(): void {
-  register().catch((error) => {
-    console.error('Error registering phrase manager:', error);
-  });
 }
 
 export function unregister(): void {
