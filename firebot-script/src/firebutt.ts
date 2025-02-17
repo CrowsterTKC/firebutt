@@ -18,6 +18,10 @@ import {
   registerFirebuttUpdateResponseProbablityEffectType,
 } from './custom-effect';
 import { formattedName, scriptOutputName } from '../package.json';
+import {
+  register as registerNotificationManager,
+  unregister as unregisterNotificationManager,
+} from './notification-manager';
 import { Params } from './params';
 import {
   register as registerPhraseManager,
@@ -111,6 +115,11 @@ export class Firebutt {
         modules: this._modules,
         parameters: this._parameters,
       });
+      await registerNotificationManager(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
 
       logger.info('Firebutt registered successfully');
     } catch (error) {
@@ -156,6 +165,7 @@ export class Firebutt {
     try {
       unregisterChatClient();
       unregisterPhraseManager();
+      unregisterNotificationManager();
       logger.info('Firebutt unregistered successfully');
     } catch (error) {
       if (error instanceof Error) {
