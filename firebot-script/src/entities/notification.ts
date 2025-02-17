@@ -27,7 +27,7 @@ export class Notification {
   @Column()
   type!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   metadata?: Record<string, unknown>;
 
   @CreateDateColumn({ name: 'inserted_at' })
