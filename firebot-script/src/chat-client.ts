@@ -9,8 +9,10 @@ import { Params, Responder } from './params';
 import { getPhraseCache } from './phrase-manager';
 import { addUsageStatistic } from './usage-statistic';
 
+let chatClient: ChatClient;
+
 export function register(
-  firebutt: Firebutt,
+  _: Firebutt,
   { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>,
   postProcessor: (
     runRequest: Omit<RunRequest<Params>, 'trigger'>,
@@ -18,22 +20,27 @@ export function register(
   ) => string = (_, message) => message
 ) {
   const { logger, twitchApi } = modules;
-  const chatClient = new ChatClient({
+  chatClient = new ChatClient({
     authProvider: twitchApi.getClient()._authProvider,
     channels: [firebot.accounts.streamer.username],
   });
   chatClient.connect();
 
-  chatClient.onMessage(async (_, user, messageText, chatMessage) =>
-    execute(
-      { firebot, modules, parameters },
-      user,
-      messageText,
-      chatMessage,
-      postProcessor
-    ).catch((error) => {
-      logger.error('error', error);
-    })
+  chatClient.onMessage(
+    async (_, user, messageText, chatMessage) =>
+      await execute(
+        { firebot, modules, parameters },
+        user,
+        messageText,
+        chatMessage,
+        postProcessor
+      ).catch((error) => {
+        if (error instanceof Error) {
+          logger.error('Firebutt:', error.message);
+        } else if (typeof error === 'string') {
+          logger.error('Firebutt:', error);
+        }
+      })
   );
 }
 
@@ -161,6 +168,13 @@ async function execute(
         responseProbability,
       });
     }
+  }
+}
+
+export function unregister() {
+  if (chatClient && chatClient.isConnected) {
+    chatClient.removeListener();
+    chatClient.quit();
   }
 }
 

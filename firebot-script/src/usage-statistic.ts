@@ -1,10 +1,14 @@
-import { FindManyOptions } from 'typeorm';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
+import { FindManyOptions, Repository } from 'typeorm';
 
-import { dataSource } from './data-source';
 import { UsageStatistic } from './entities/usage-statistics';
+import { Firebutt } from './firebutt';
 import { newGuid } from './guid-handler';
+import { Params } from './params';
 
-const usageStatisticRepository = dataSource?.getRepository(UsageStatistic);
+let usageStatisticRepository: Repository<UsageStatistic> =
+  null as unknown as Repository<UsageStatistic>;
 
 export async function addUsageStatistic({
   originalPhrase,
@@ -52,4 +56,13 @@ export async function getUsageStatistics(
   options?: FindManyOptions<UsageStatistic> | undefined
 ): Promise<UsageStatistic[]> {
   return await usageStatisticRepository.find(options);
+}
+
+export async function register(
+  firebutt: Firebutt,
+  _: Omit<RunRequest<Params>, 'trigger'>
+) {
+  usageStatisticRepository = firebutt
+    .getDataSource()
+    .getRepository(UsageStatistic);
 }
