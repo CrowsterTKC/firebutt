@@ -28,6 +28,7 @@ import {
   unregister as unregisterPhraseManager,
 } from './phrase-manager';
 import { getFirebotProfileDataFolderPath } from './utils/file-system';
+import { register as registerWebInterface } from './web-interface';
 
 export class Firebutt {
   private _dataSource: DataSource;
@@ -95,6 +96,11 @@ export class Firebutt {
     this.redirectConsole();
 
     try {
+      await registerNotificationManager(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
       await registerPhraseManager(this, {
         firebot: this._firebot,
         modules: this._modules,
@@ -105,17 +111,17 @@ export class Firebutt {
         modules: this._modules,
         parameters: this._parameters,
       });
+      await registerWebInterface(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
       await registerFirebuttAddRemovePhraseEffectType(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
       });
       await registerFirebuttUpdateResponseProbablityEffectType(this, {
-        firebot: this._firebot,
-        modules: this._modules,
-        parameters: this._parameters,
-      });
-      await registerNotificationManager(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
