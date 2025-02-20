@@ -16,7 +16,7 @@ enum NotificationType {
 }
 
 const NOTIFCATION_URL =
-  'https://raw.githubusercontent.com/CrowsterTKC/main/firebot-script/public/notifications.json';
+  'https://raw.githubusercontent.com/CrowsterTKC/firebutt/refs/heads/main/firebot-script/public/notifications.json';
 let notificationRepository: Repository<Notification> =
   null as unknown as Repository<Notification>;
 let checkForNotificationsJob: NodeJS.Timeout | null = null;
