@@ -1,13 +1,14 @@
 import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
 import { Request, Response } from 'express';
+import { v4 as uuid } from 'uuid';
 
 import { Firebutt } from './firebutt';
 import { Params } from './params';
 
 const appJavaScriptUrl =
-  'https://raw.githubusercontent.com/CrowsterTKC/main/web-app/public/static/js/bundle.js';
+  'https://raw.githubusercontent.com/CrowsterTKC/firebutt/refs/heads/main/web-app/public/static/bundle.js';
 const appCSSUrl =
-  'https://raw.githubusercontent.com/CrowsterTKC/main/web-app/public/static/css/bundle.css';
+  'https://raw.githubusercontent.com/CrowsterTKC/firebutt/refs/heads/main/web-app/public/static/bundle.css';
 
 const singlePageAppHtml = `
 <!DOCTYPE html>
@@ -20,8 +21,8 @@ const singlePageAppHtml = `
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Firebutt — Phrase Management</title>
-    <script crossorigin src="${appJavaScriptUrl}"></script>
-    <link rel="stylesheet" crossorigin href="${appCSSUrl}">
+    <script type="module" crossorigin src="/integrations/firebutt/management/static/bundle.js?${uuid()}"></script>
+    <link rel="stylesheet" crossorigin href="/integrations/firebutt/management/static/bundle.css?${uuid()}">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -42,6 +43,34 @@ export function register(
     'GET',
     async (_: Request, res: Response) => {
       res.send(singlePageAppHtml);
+    }
+  );
+
+  httpServer.registerCustomRoute(
+    'firebutt',
+    '/management/static/bundle.js',
+    'GET',
+    async (_: Request, res: Response) => {
+      const response = await fetch(appJavaScriptUrl);
+      const js = await response.text();
+
+      res.setHeader('Cache-Control', 'no-store');
+      res.contentType('application/javascript');
+      res.send(js);
+    }
+  );
+
+  httpServer.registerCustomRoute(
+    'firebutt',
+    '/management/static/bundle.css',
+    'GET',
+    async (_: Request, res: Response) => {
+      const response = await fetch(appCSSUrl);
+      const css = await response.text();
+
+      res.setHeader('Cache-Control', 'no-store');
+      res.contentType('text/css');
+      res.send(css);
     }
   );
 }
