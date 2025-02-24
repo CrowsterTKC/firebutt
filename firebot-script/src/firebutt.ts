@@ -18,6 +18,7 @@ import {
   registerFirebuttUpdateResponseProbablityEffectType,
 } from './custom-effect';
 import { formattedName, scriptOutputName } from '../package.json';
+import { registerFirebuttResponseProbablityReplaceVariable } from './custom-replace-variable';
 import {
   register as registerNotificationManager,
   unregister as unregisterNotificationManager,
@@ -128,6 +129,11 @@ export class Firebutt {
         parameters: this._parameters,
       });
       await registerFirebuttUpdateResponseProbablityEffectType(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerFirebuttResponseProbablityReplaceVariable(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
