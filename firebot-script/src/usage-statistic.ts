@@ -28,7 +28,7 @@ export async function addUsageStatistic({
   responseProbability: number;
 }): Promise<UsageStatistic> {
   const { id, guid } = newGuid({ type: 'usage-statistic' });
-  const usageStatistic = usageStatisticRepository.merge(new UsageStatistic(), {
+  const usageStatistic = usageStatisticRepository.create({
     id,
     guid,
     originalPhrase,

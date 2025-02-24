@@ -12,7 +12,7 @@ import { addUsageStatistic } from './usage-statistic';
 let chatClient: ChatClient;
 
 export function register(
-  _: Firebutt,
+  firebutt: Firebutt,
   { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>,
   postProcessor: (
     runRequest: Omit<RunRequest<Params>, 'trigger'>,
@@ -29,6 +29,7 @@ export function register(
   chatClient.onMessage(
     async (_, user, messageText, chatMessage) =>
       await execute(
+        firebutt,
         { firebot, modules, parameters },
         user,
         messageText,
@@ -45,6 +46,7 @@ export function register(
 }
 
 async function execute(
+  firebutt: Firebutt,
   runRequest: Omit<RunRequest<Params>, 'trigger'>,
   user: string,
   messageText: string,
@@ -58,12 +60,11 @@ async function execute(
     firebot: {
       accounts: { bot, streamer },
     },
-    parameters,
     modules: { twitchApi, userDb: UserDb, utils: Utils },
   } = runRequest;
 
   const { ignoreRoles, ignoreUsernames, responder, responseProbability } =
-    parameters as Params;
+    firebutt.getParameters() as Params;
 
   const ignoreRolesArray = ignoreRoles.split(',').map((role) => role.trim());
   const ignoreUsernamesArray = ignoreUsernames
