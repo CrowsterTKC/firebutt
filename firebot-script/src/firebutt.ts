@@ -27,6 +27,7 @@ import {
   register as registerPhraseManager,
   unregister as unregisterPhraseManager,
 } from './phrase-manager';
+import { register as registerUsageStatistic } from './usage-statistic';
 import { getFirebotProfileDataFolderPath } from './utils/file-system';
 import { register as registerWebInterface } from './web-interface';
 
@@ -102,6 +103,11 @@ export class Firebutt {
         parameters: this._parameters,
       });
       await registerPhraseManager(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerUsageStatistic(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
@@ -186,12 +192,12 @@ export class Firebutt {
     }
   }
 
-  updateParameters(params: Partial<Params>, saveDb: boolean = false) {
+  async updateParameters(params: Partial<Params>, saveDb: boolean = false) {
     this._parameters = { ...this._parameters, ...params };
 
     if (saveDb) {
       for (const [key, value] of Object.entries(this._parameters)) {
-        this._startupScriptConfigDb.push(
+        await this._startupScriptConfigDb.push(
           `/${this._scriptId}/parameters/${key}/value`,
           value
         );
