@@ -34,7 +34,7 @@ export function crudPhrases(
           'phrase.expiresAt',
           'phrase.createdByUser',
           'phrase.usageCount',
-          'phrase.deletedAt',
+          'phrase.metadata',
         ])
         .where(id ? 'phrase.id = :id' : '', { id });
 
