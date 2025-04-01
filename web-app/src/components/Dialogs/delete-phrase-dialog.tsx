@@ -9,9 +9,9 @@ import {
 import { useCallback, useMemo } from 'react';
 
 import { WEB } from '../../constants/app';
-import { ComponentProps } from '../EnhancedTable';
+import { DialogComponentProps } from '../EnhancedTable';
 
-interface DeletePhraseDialogProps extends ComponentProps {
+interface DeletePhraseDialogProps extends DialogComponentProps {
   formData: PhraseData[];
 }
 

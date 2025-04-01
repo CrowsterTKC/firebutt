@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { PartOfSpeech } from '../components/Columns';
+import { PartOfSpeech, TwitchUser } from '../components/Columns';
 import { AddEditPhraseDialog, DeletePhraseDialog } from '../components/Dialogs';
 import { EnhancedColumn, EnhancedTable } from '../components/EnhancedTable';
 import { WEB } from '../constants/app';
@@ -39,6 +39,7 @@ export default function PhraseManagement() {
     {
       id: 'createdByUser',
       label: 'Created By User',
+      component: TwitchUser,
     },
   ];
 

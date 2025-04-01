@@ -14,7 +14,11 @@ import { ElementType, useCallback, useMemo, useState } from 'react';
 import { EnhancedTableHead } from '../EnhancedTableHead';
 import { EnhancedTableToolbar } from '../EnhancedTableToolbar';
 
-export interface ComponentProps {
+export interface ColumnComponentProps<T> {
+  value: T;
+}
+
+export interface DialogComponentProps {
   handleClose: () => void;
   handleRefresh: () => void;
   open: boolean;
@@ -220,7 +224,7 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
                         if (Component) {
                           return (
                             <TableCell key={id as string}>
-                              <Component value={row[id]} />
+                              <Component value={row} />
                             </TableCell>
                           );
                         } else {

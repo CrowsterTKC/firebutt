@@ -12,9 +12,9 @@ import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
 
 import { WEB } from '../../constants/app';
-import { ComponentProps } from '../EnhancedTable';
+import { DialogComponentProps } from '../EnhancedTable';
 
-interface AddEditPhraseDialogProps extends ComponentProps {
+interface AddEditPhraseDialogProps extends DialogComponentProps {
   formData?: PhraseData;
   mode: 'add' | 'edit';
 }
