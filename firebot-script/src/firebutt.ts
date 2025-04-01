@@ -168,11 +168,11 @@ export class Firebutt {
       log: (...args: unknown[]) => {
         logger.info(`${formattedName}:`, ...args);
       },
-      error: (...args: unknown[]) => {
-        logger.error(`${formattedName}:`, ...args);
-      },
       warn: (...args: unknown[]) => {
         logger.warn(`${formattedName}:`, ...args);
+      },
+      error: (...args: unknown[]) => {
+        logger.error(`${formattedName}:`, ...args);
       },
     };
   }
