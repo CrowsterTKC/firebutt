@@ -5,6 +5,7 @@ import {
   Entity,
   PrimaryColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from 'typeorm';
 
 @Entity({ name: 'phrases' })
@@ -32,6 +33,21 @@ export class Phrase {
 
   @CreateDateColumn({ name: 'inserted_at' })
   insertedAt!: Date;
+
+  @VirtualColumn({
+    query: (alias) =>
+      `SELECT COUNT("usage_statistics"."id") usage_count FROM usage_statistics RIGHT JOIN phrases "pj" ON (usage_statistics.metadata->>'phrase_id' = "pj".id) WHERE "pj".original_phrase = ${alias}.original_phrase GROUP BY "pj".original_phrase`,
+  })
+  usageCount!: number;
+
+  @Column({ name: 'metadata', type: 'json' })
+  metadata!: {
+    default?: boolean;
+    imported?: boolean;
+    twitchAvatarUrl?: string;
+    twitchUserId?: string;
+    twitchUsername?: string;
+  };
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;

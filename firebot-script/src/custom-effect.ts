@@ -62,9 +62,6 @@ export function registerFirebuttAddRemovePhraseEffectType(
       if (!effect.action) {
         errors.push('Action is required');
       }
-      if (effect.action === 'Add Phrase' && !effect.originalPhrase) {
-        errors.push('Original phrase is required');
-      }
       if (!effect.replacementPhrase) {
         errors.push('Replacement phrase is required');
       }
@@ -82,7 +79,8 @@ export function registerFirebuttAddRemovePhraseEffectType(
         const taggedWords = tagger.tag(lexer.lex(originalPhrase));
 
         await addPhrase({
-          originalPhrase,
+          originalPhrase:
+            originalPhrase !== '' ? [originalPhrase] : ['__any__'],
           replacementPhrase,
           partOfSpeech: taggedWords.length === 1 ? taggedWords[0][1] : null,
           expiresAt: expiresInDays

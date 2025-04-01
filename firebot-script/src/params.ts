@@ -10,7 +10,7 @@ export interface Params extends Record<string, unknown> {
   ignoreRoles: string;
   ignoreUsernames: string;
   isEnabled: boolean;
-  populateDefaultPhrases: boolean;
+  // populateDefaultPhrases: boolean;
   responseProbability: number;
   responder: string;
 }
@@ -45,13 +45,13 @@ export function getDefaultParameters(): ParametersConfig<Params> {
       description:
         "Toggle to enable or disable Firebutt's responses to messages.",
     },
-    populateDefaultPhrases: {
-      type: 'boolean',
-      default: true,
-      title: 'Populate Default Phrases',
-      description:
-        'If enabled, Firebutt will automatically load a set of default phrases into its dictionary.',
-    },
+    // populateDefaultPhrases: {
+    //   type: 'boolean',
+    //   default: true,
+    //   title: 'Populate Default Phrases',
+    //   description:
+    //     'If enabled, Firebutt will automatically load a set of default phrases into its dictionary. NOTE: Requires a restart to take effect.',
+    // },
     responseProbability: {
       type: 'number',
       default: 15,

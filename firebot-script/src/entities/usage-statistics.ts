@@ -35,6 +35,16 @@ export class UsageStatistic {
   @Column({ name: 'response_probability' })
   responseProbability!: number;
 
+  @Column({ name: 'metadata', type: 'json' })
+  metadata!: {
+    imported?: boolean;
+    phraseId: string;
+    rawMessage?: Record<string, unknown>;
+    twitchAvatarUrl?: string;
+    twitchUserId?: string;
+    twitchUsername?: string;
+  };
+
   @CreateDateColumn({ name: 'inserted_at' })
   insertedAt!: Date;
 

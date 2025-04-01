@@ -88,15 +88,18 @@ async function execute(
   }
 
   let response = messageText;
-  const statsQueue: { originalPhrase: string; replacementPhrase: string }[] =
-    [];
+  const statsQueue: {
+    id: string;
+    originalPhrase: string;
+    replacementPhrase: string;
+  }[] = [];
   const phrases = getPhraseCache();
   const matchingPhrases = Object.entries(phrases).filter(([originalPhrase]) =>
     messageText.match(new RegExp(`\\b(${originalPhrase})\\b`, 'ig'))
   );
 
   if (matchingPhrases.length > 0) {
-    for (const [originalPhrase, { replacementPhrase }] of matchingPhrases) {
+    for (const [originalPhrase, { id, replacementPhrase }] of matchingPhrases) {
       const { casedReplacementPhrase, casedPluralReplacementPhrase } =
         getPhrasing(originalPhrase, replacementPhrase);
 
@@ -109,13 +112,13 @@ async function execute(
           new RegExp(`\\b(${plural(originalPhrase)})\\b`, 'ig'),
           casedPluralReplacementPhrase
         );
-      statsQueue.push({ originalPhrase, replacementPhrase });
+      statsQueue.push({ id, originalPhrase, replacementPhrase });
     }
   } else {
     const randomIndex = Utils.getRandomInt(0, Object.keys(phrases).length - 1);
-    const [, { partOfSpeech, replacementPhrase }] = Object.entries(phrases).at(
-      randomIndex
-    ) as [string, Phrase];
+    const [, { id, partOfSpeech, replacementPhrase }] = Object.entries(
+      phrases
+    ).at(randomIndex) as [string, Phrase];
 
     const lexer = new Lexer();
     const tagger = new Tagger();
@@ -147,7 +150,11 @@ async function execute(
           casedPluralReplacementPhrase
         );
 
-      statsQueue.push({ originalPhrase: phrase, replacementPhrase });
+      statsQueue.push({
+        id,
+        originalPhrase: phrase,
+        replacementPhrase,
+      });
     }
   }
 
@@ -159,14 +166,23 @@ async function execute(
       await twitchApi.channels.getChannelInformation(streamer.userId)
     ).title;
     for (const stat of statsQueue) {
+      const twitchUser = await twitchApi.users.getUserByName(user);
+
       await addUsageStatistic({
         originalPhrase: stat.originalPhrase,
         replacementPhrase: stat.replacementPhrase,
-        user,
+        user: twitchUser.displayName,
         originalMessage: messageText,
         replacementMessage,
         streamTitle,
         responseProbability,
+        metadata: {
+          phraseId: stat.id,
+          rawMessage: chatMessage,
+          twitchAvatarUrl: twitchUser.profilePictureUrl,
+          twitchUserId: twitchUser.id,
+          twitchUsername: user,
+        },
       });
     }
   }

@@ -6,8 +6,13 @@ export const APP = {
 };
 
 export const WEB = {
-  API_BASE_ROUTE: '/api',
+  API_ROUTE: '/integrations/firebutt/management/api',
+  BASE_ORIGIN:
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:7472'
+      : window.location.origin,
   BASE_ROUTE:
-    process.env.NODE_ENV === 'development' ? '/' : '/integrations/firebutt',
-  MANAGEMENT_ROUTE: '/management',
+    process.env.NODE_ENV === 'development'
+      ? '/'
+      : '/integrations/firebutt/management',
 };

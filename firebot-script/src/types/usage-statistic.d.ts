@@ -7,3 +7,7 @@ interface AddUsageStateProps {
   streamTitle: string;
   responseProbability: number;
 }
+
+interface UsageStatisticAggregated {
+  [key: string]: { [key: string]: number };
+}
