@@ -9,40 +9,61 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { ElementType, useCallback, useMemo, useState } from 'react';
 
 import { EnhancedTableHead } from '../EnhancedTableHead';
 import { EnhancedTableToolbar } from '../EnhancedTableToolbar';
 
+export interface ComponentProps {
+  handleClose: () => void;
+  handleRefresh: () => void;
+  open: boolean;
+}
+
 interface EnhancedTableInterface {
-  id: number;
+  id: string;
 }
 
 interface EnhancedTableProps<T extends EnhancedTableInterface> {
+  addItemComponent?: ElementType;
   columns: EnhancedColumn<T>[];
   defaultColumnForOrderBy: keyof T;
+  deleteItemComponent?: ElementType;
+  editItemComponent?: ElementType;
+  entityNameForTooltips?: string;
+  handleRefresh?: () => void;
+  onFilter?: (value: string) => void;
   rows: T[];
   tableTitle: string;
 }
 
 export interface EnhancedColumn<T> {
+  component?: ElementType;
   disablePadding?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  formatter?: (value: any) => string;
   id: keyof T;
   label: string;
   numeric?: boolean;
 }
 
 export function EnhancedTable<T extends EnhancedTableInterface>({
+  addItemComponent,
   columns,
   defaultColumnForOrderBy,
+  deleteItemComponent,
+  editItemComponent,
+  entityNameForTooltips,
+  handleRefresh,
+  onFilter,
   rows,
   tableTitle,
 }: EnhancedTableProps<T>) {
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<keyof T>(defaultColumnForOrderBy);
-  const [selected, setSelected] = useState<readonly number[]>([]);
+  const [selected, setSelected] = useState<readonly string[]>([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleRequestSort = useCallback(
     (_: React.MouseEvent<unknown>, property: keyof T) => {
@@ -66,9 +87,9 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
   );
 
   const handleClick = useCallback(
-    (_: React.MouseEvent<unknown>, id: number) => {
+    (_: React.MouseEvent<unknown>, id: string) => {
       const selectedIndex = selected.indexOf(id);
-      let newSelected: readonly number[] = [];
+      let newSelected: readonly string[] = [];
 
       if (selectedIndex === -1) {
         newSelected = newSelected.concat(selected, id);
@@ -122,8 +143,15 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
   );
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = useMemo(
+    () => (page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0),
+    [page, rows, rowsPerPage]
+  );
+
+  const selectedData = useMemo(
+    () => rows.filter((row) => selected.includes(row.id)),
+    [rows, selected]
+  );
 
   const visibleRows = useMemo(
     () =>
@@ -136,8 +164,15 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar
+        <EnhancedTableToolbar<T>
+          addItemComponent={addItemComponent}
+          deleteItemComponent={deleteItemComponent}
+          editItemComponent={editItemComponent}
+          editItemComponentData={selectedData}
+          entityNameForTooltips={entityNameForTooltips}
           numSelected={selected.length}
+          handleRefresh={handleRefresh}
+          onFilter={onFilter}
           tableTitle={tableTitle}
         />
         <TableContainer>
@@ -180,16 +215,28 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
                         }}
                       />
                     </TableCell>
-                    {columns.map(({ id, numeric }) => {
-                      return (
-                        <TableCell
-                          key={id as string}
-                          align={numeric ? 'right' : 'left'}
-                        >
-                          {row[id] as string}
-                        </TableCell>
-                      );
-                    })}
+                    {columns.map(
+                      ({ component: Component, formatter, id, numeric }) => {
+                        if (Component) {
+                          return (
+                            <TableCell key={id as string}>
+                              <Component value={row[id]} />
+                            </TableCell>
+                          );
+                        } else {
+                          return (
+                            <TableCell
+                              key={id as string}
+                              align={numeric ? 'right' : 'left'}
+                            >
+                              {formatter
+                                ? formatter(row[id])
+                                : (row[id] as string)}
+                            </TableCell>
+                          );
+                        }
+                      }
+                    )}
                   </TableRow>
                 );
               })}
@@ -206,7 +253,7 @@ export function EnhancedTable<T extends EnhancedTableInterface>({
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           component='div'
           count={rows.length}
           rowsPerPage={rowsPerPage}

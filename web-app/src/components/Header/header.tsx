@@ -84,9 +84,9 @@ export function Header() {
                 <FontAwesomeSvgIcon icon={faDiscord} />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Browse Project on GitHub'>
+            <Tooltip title='Browse project on GitHub'>
               <IconButton
-                aria-label='Browse Project on GitHub'
+                aria-label='Browse project on GitHub'
                 onClick={onClickGitHub}
                 sx={{ color: 'inherit' }}
               >
