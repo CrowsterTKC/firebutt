@@ -201,6 +201,13 @@ export class Firebutt {
   async updateParameters(params: Partial<Params>, saveDb: boolean = false) {
     this._parameters = { ...this._parameters, ...params };
 
+    // if (params.populateDefaultPhrases !== undefined) {
+    //   this._dataSource.query(
+    //     "UPDATE phrases SET deleted_at = ? WHERE metadata->>'default' = 'true'",
+    //     [params.populateDefaultPhrases ? null : new Date().toISOString()]
+    //   );
+    // }
+
     if (saveDb) {
       for (const [key, value] of Object.entries(this._parameters)) {
         await this._startupScriptConfigDb.push(
