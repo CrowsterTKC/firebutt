@@ -166,15 +166,23 @@ async function execute(
       await twitchApi.channels.getChannelInformation(streamer.userId)
     ).title;
     for (const stat of statsQueue) {
+      const twitchUser = await twitchApi.users.getUserByName(user);
+
       await addUsageStatistic({
         originalPhrase: stat.originalPhrase,
         replacementPhrase: stat.replacementPhrase,
-        user,
+        user: twitchUser.displayName,
         originalMessage: messageText,
         replacementMessage,
         streamTitle,
         responseProbability,
-        metadata: { phraseId: stat.id },
+        metadata: {
+          phraseId: stat.id,
+          rawMessage: chatMessage,
+          twitchAvatarUrl: twitchUser.profilePictureUrl,
+          twitchUserId: twitchUser.id,
+          twitchUsername: user,
+        },
       });
     }
   }

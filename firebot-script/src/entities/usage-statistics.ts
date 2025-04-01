@@ -39,6 +39,10 @@ export class UsageStatistic {
   metadata!: {
     imported?: boolean;
     phraseId: string;
+    rawMessage?: Record<string, unknown>;
+    twitchAvatarUrl?: string;
+    twitchUserId?: string;
+    twitchUsername?: string;
   };
 
   @CreateDateColumn({ name: 'inserted_at' })

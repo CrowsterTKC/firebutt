@@ -40,6 +40,15 @@ export class Phrase {
   })
   usageCount!: number;
 
+  @Column({ name: 'metadata', type: 'json' })
+  metadata!: {
+    default?: boolean;
+    imported?: boolean;
+    twitchAvatarUrl?: string;
+    twitchUserId?: string;
+    twitchUsername?: string;
+  };
+
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 

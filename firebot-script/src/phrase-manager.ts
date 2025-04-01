@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
 import { FindOneOptions, LessThan, Repository } from 'typeorm';
 
@@ -8,6 +7,8 @@ import { newGuid } from './guid-handler';
 import { Params } from './params';
 import { AddPhraseProps, UpdatePhraseProps } from './types/phrase-manager';
 
+let firebotModules: RunRequest<Params>['modules'] =
+  null as unknown as RunRequest<Params>['modules'];
 let phraseRepository: Repository<Phrase> =
   null as unknown as Repository<Phrase>;
 const phraseCache: Record<string, Phrase> = {};
@@ -35,6 +36,9 @@ export async function addPhrase({
     });
     return updatedPhrase;
   } else {
+    const twitchUser =
+      await firebotModules.twitchApi.users.getUserByName(createdByUser);
+
     const { id, guid } = newGuid({ type: 'phrase' });
     const newPhrase = phraseRepository.merge(new Phrase(), {
       id,
@@ -43,7 +47,12 @@ export async function addPhrase({
       replacementPhrase,
       partOfSpeech,
       expiresAt,
-      createdByUser,
+      createdByUser: twitchUser.displayName,
+      metadata: {
+        twitchAvatarUrl: twitchUser.profilePictureUrl,
+        twitchUserId: twitchUser.id,
+        twitchUsername: createdByUser,
+      },
     });
     await phraseRepository.save(newPhrase);
 
@@ -123,9 +132,10 @@ export function getPhraseRepository(): Repository<Phrase> {
 
 export async function register(
   firebutt: Firebutt,
-  _: Omit<RunRequest<Params>, 'trigger'>
+  { modules }: Omit<RunRequest<Params>, 'trigger'>
 ): Promise<void> {
   phraseRepository = firebutt.getDataSource().getRepository(Phrase);
+  firebotModules = modules;
   const phrases = await getPhrases();
   phrases.forEach((phrase) => {
     phrase.originalPhrase.forEach((originalPhrase) => {
@@ -162,12 +172,20 @@ export async function updatePhrase(
     createdByUser,
   }: UpdatePhraseProps
 ): Promise<Phrase> {
+  const twitchUser =
+    await firebotModules.twitchApi.users.getUserByName(createdByUser);
+
   const updatedPhrase = phraseRepository.merge(phrase, {
     originalPhrase,
     replacementPhrase,
     partOfSpeech,
     expiresAt,
-    createdByUser,
+    createdByUser: twitchUser.displayName,
+    metadata: {
+      twitchAvatarUrl: twitchUser.profilePictureUrl,
+      twitchUserId: twitchUser.id,
+      twitchUsername: createdByUser,
+    },
   });
 
   await phraseRepository.save(updatedPhrase);
