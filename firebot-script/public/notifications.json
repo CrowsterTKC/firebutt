@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "b9105488-f2bd-4a46-92c5-4d4a1aff7469",
+    "guid": "fbr:notification:b9105488-f2bd-4a46-92c5-4d4a1aff7469",
+    "title": "Welcome to Firebutt 🔥🍑",
+    "message": "Welcome to Firebutt! Get ready for fun, cheeky responses, and a whole lot of butt jokes in your Twitch Chat.",
+    "type": "info",
+    "metadata": {
+      "version": ">=1.0.0"
+    }
+  }
+]
