@@ -1,5 +1,5 @@
 export interface AddPhraseProps {
-  originalPhrase: string;
+  originalPhrase: string[];
   replacementPhrase: string;
   partOfSpeech: string | null;
   expiresAt: Date | null;

@@ -21,31 +21,42 @@ export async function addPhrase({
   createdByUser,
 }: AddPhraseProps): Promise<Phrase> {
   const existingPhrase = await phraseRepository.findOne({
-    where: { replacementPhrase },
+    where: [{ replacementPhrase }, ...(expiresAt ? [{ expiresAt }] : [])],
   });
 
   if (existingPhrase) {
     const updatedPhrase = phraseRepository.merge(existingPhrase, {
-      originalPhrase: [...existingPhrase.originalPhrase, originalPhrase],
+      originalPhrase: [...existingPhrase.originalPhrase, ...originalPhrase],
     });
-
     await phraseRepository.save(updatedPhrase);
-    phraseCache[originalPhrase] = updatedPhrase;
+
+    updatedPhrase.originalPhrase.forEach((originalPhrase) => {
+      phraseCache[originalPhrase] = updatedPhrase;
+    });
     return updatedPhrase;
   } else {
     const { id, guid } = newGuid({ type: 'phrase' });
     const newPhrase = phraseRepository.merge(new Phrase(), {
       id,
       guid,
-      originalPhrase: [originalPhrase],
+      originalPhrase,
       replacementPhrase,
       partOfSpeech,
       expiresAt,
       createdByUser,
     });
-
     await phraseRepository.save(newPhrase);
-    phraseCache[originalPhrase] = newPhrase;
+
+    newPhrase.originalPhrase.forEach((originalPhrase) => {
+      phraseCache[originalPhrase] = {
+        ...newPhrase,
+        ...phraseCache[originalPhrase],
+        originalPhrase: [
+          ...(phraseCache[originalPhrase]?.originalPhrase || []),
+          originalPhrase,
+        ],
+      };
+    });
     return newPhrase;
   }
 }
@@ -104,6 +115,10 @@ export function getPhraseByOriginalPhrase(
 
 export async function getPhrases(): Promise<Phrase[]> {
   return await phraseRepository.find();
+}
+
+export function getPhraseRepository(): Repository<Phrase> {
+  return phraseRepository;
 }
 
 export async function register(
