@@ -35,6 +35,12 @@ export class UsageStatistic {
   @Column({ name: 'response_probability' })
   responseProbability!: number;
 
+  @Column({ name: 'metadata', type: 'json' })
+  metadata!: {
+    imported?: boolean;
+    phraseId: string;
+  };
+
   @CreateDateColumn({ name: 'inserted_at' })
   insertedAt!: Date;
 

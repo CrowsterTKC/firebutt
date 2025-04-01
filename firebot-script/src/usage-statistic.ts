@@ -18,6 +18,7 @@ export async function addUsageStatistic({
   replacementMessage,
   streamTitle,
   responseProbability,
+  metadata,
 }: {
   originalPhrase: string;
   replacementPhrase: string;
@@ -26,6 +27,7 @@ export async function addUsageStatistic({
   replacementMessage: string;
   streamTitle: string;
   responseProbability: number;
+  metadata?: Record<string, unknown>;
 }): Promise<UsageStatistic> {
   const { id, guid } = newGuid({ type: 'usage-statistic' });
   const usageStatistic = usageStatisticRepository.create({
@@ -38,6 +40,7 @@ export async function addUsageStatistic({
     replacementMessage,
     streamTitle,
     responseProbability,
+    metadata,
   });
 
   await usageStatisticRepository.save(usageStatistic);
