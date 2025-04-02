@@ -1,17 +1,25 @@
+import { InfoOutlined } from '@mui/icons-material';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
+  Tooltip,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
 
 import { WEB } from '../../constants/app';
+import { partOfSpeech } from '../../constants/pos';
 import { DialogComponentProps } from '../EnhancedTable';
 
 interface AddEditPhraseDialogProps extends DialogComponentProps {
@@ -58,7 +66,7 @@ export function AddEditPhraseDialog({
       if (mode === 'add') {
         const originalPhraseArray =
           originalPhrase === ''
-            ? ['__any__']
+            ? [`__${replacementPhrase}__`]
             : (originalPhrase as string)
                 .split(',')
                 .map((phrase) => phrase.trim());
@@ -97,7 +105,7 @@ export function AddEditPhraseDialog({
       if (mode === 'edit') {
         const originalPhraseArray =
           originalPhrase === ''
-            ? ['__any__']
+            ? [`__${replacementPhrase}__`]
             : (originalPhrase as string)
                 .split(',')
                 .map((phrase) => phrase.trim());
@@ -159,7 +167,8 @@ export function AddEditPhraseDialog({
         <TextField
           autoFocus
           defaultValue={
-            phraseData?.originalPhrase[0] !== '__any__'
+            !phraseData?.originalPhrase[0].startsWith('__') &&
+            !phraseData?.originalPhrase[0].endsWith('__')
               ? phraseData?.originalPhrase.join(', ')
               : ''
           }
@@ -182,17 +191,43 @@ export function AddEditPhraseDialog({
           type='text'
           variant='standard'
         />
-        <TextField
-          defaultValue={phraseData?.partOfSpeech}
-          fullWidth
-          id='partOfSpeech'
-          label='Part of Speech'
-          margin='dense'
-          name='partOfSpeech'
-          required
-          type='text'
-          variant='standard'
-        />
+        <FormControl fullWidth margin='dense' variant='standard'>
+          <InputLabel id='partOfSpeechLabel'>Part of Speech</InputLabel>
+          <Select
+            defaultValue={phraseData?.partOfSpeech}
+            id='partOfSpeech'
+            label='Part of Speech'
+            labelId='partOfSpeechLabel'
+            margin='dense'
+            required
+            variant='standard'
+          >
+            {Object.entries(partOfSpeech).map(
+              ([tag, { description, examples }]) => (
+                <MenuItem value={tag}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                    }}
+                  >
+                    <Box>
+                      {description}{' '}
+                      <Box sx={{ color: '#bbb', display: 'inline' }}>
+                        ({tag})
+                      </Box>
+                    </Box>
+                    <Tooltip title={examples.join(', ')} placement='right'>
+                      <InfoOutlined sx={{ color: '#bbb' }} />
+                    </Tooltip>
+                  </Box>
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </FormControl>
         {mode === 'add' ? (
           <TextField
             fullWidth
@@ -204,7 +239,7 @@ export function AddEditPhraseDialog({
             variant='standard'
           />
         ) : (
-          <DatePicker
+          <DateTimePicker
             defaultValue={
               phraseData?.expiresAt ? dayjs(phraseData?.expiresAt) : null
             }

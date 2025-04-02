@@ -15,7 +15,7 @@ export class AddDefaultPhrases1743512080156 implements MigrationInterface {
       [
         phraseId,
         phraseGuid,
-        JSON.stringify(['__any__']),
+        JSON.stringify(['__butt__']),
         'butt',
         'NN',
         null,

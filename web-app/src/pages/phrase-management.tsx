@@ -14,7 +14,9 @@ export default function PhraseManagement() {
       id: 'originalPhrase',
       label: 'Original Phrase',
       formatter: (value: string[]) =>
-        value[0] === '__any__' ? '' : value.join(', '),
+        value[0].startsWith('__') && value[0].endsWith('__')
+          ? ''
+          : value.join(', '),
     },
     {
       id: 'replacementPhrase',
