@@ -5,7 +5,6 @@ import { ColumnComponentProps } from '../EnhancedTable';
 export function TwitchUser({
   value: { createdByUser, metadata },
 }: ColumnComponentProps<PhraseData>) {
-  console.log('TwitchUser', createdByUser, metadata);
   return (
     <Box sx={{ alignItems: 'center', display: 'flex', flexDirection: 'row' }}>
       {metadata?.twitchAvatarUrl && (
