@@ -80,7 +80,9 @@ export function registerFirebuttAddRemovePhraseEffectType(
 
         await addPhrase({
           originalPhrase:
-            originalPhrase !== '' ? [originalPhrase] : ['__any__'],
+            originalPhrase !== ''
+              ? [originalPhrase]
+              : [`__${replacementPhrase}__`],
           replacementPhrase,
           partOfSpeech: taggedWords.length === 1 ? taggedWords[0][1] : null,
           expiresAt: expiresInDays
