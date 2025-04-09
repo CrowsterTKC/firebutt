@@ -114,7 +114,7 @@ export function AddEditPhraseDialog({
           originalPhrase: originalPhraseArray,
           replacementPhrase,
           partOfSpeech,
-          expiresAt,
+          expiresAt: expiresAt ? new Date(expiresAt) : null,
           createdByUser,
         };
 
