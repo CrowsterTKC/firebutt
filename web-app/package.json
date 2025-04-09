@@ -2,7 +2,7 @@
   "name": "firebutt-web-app",
   "author": "CrowsterTKC",
   "description": "A web application for managing Firebutt's dictionary and viewing usage statistics.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "scripts": {
