@@ -6,6 +6,7 @@ import { Firebutt } from './firebutt';
 import { newGuid } from './guid-handler';
 import { Params } from './params';
 import { AddPhraseProps, UpdatePhraseProps } from './types/phrase-manager';
+import { localConsole } from './utils/local-console';
 
 let firebotModules: RunRequest<Params>['modules'] =
   null as unknown as RunRequest<Params>['modules'];
@@ -146,7 +147,7 @@ export async function register(
   });
 
   purgeExpiredPhrasesJob = setInterval(async () => {
-    console.log('Running purgeExpiredPhrasesJob');
+    localConsole.log('Running purgeExpiredPhrasesJob');
     await purgeExpiredPhrases();
   }, 1000 * 60);
 }
