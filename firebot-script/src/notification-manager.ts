@@ -7,6 +7,7 @@ import { Firebutt } from './firebutt';
 import { newGuid } from './guid-handler';
 import { Params } from './params';
 import { version } from '../package.json';
+import { localConsole } from './utils/local-console';
 
 enum NotificationType {
   INFO = 'info',
@@ -121,7 +122,7 @@ export async function register(
   notificationRepository = firebutt.getDataSource().getRepository(Notification);
   checkForNotificationsJob = setInterval(
     async () => {
-      console.log('Running checkForNotificationsJob');
+      localConsole.log('Running checkForNotificationsJob');
       await checkForNotifications({ firebot, modules, parameters });
     },
     1 * 60 * 1000

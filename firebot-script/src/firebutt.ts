@@ -17,7 +17,7 @@ import {
   registerFirebuttAddRemovePhraseEffectType,
   registerFirebuttUpdateResponseProbablityEffectType,
 } from './custom-effect';
-import { formattedName, scriptOutputName } from '../package.json';
+import { scriptOutputName } from '../package.json';
 import { registerFirebuttResponseProbablityReplaceVariable } from './custom-replace-variable';
 import {
   register as registerNotificationManager,
@@ -30,6 +30,7 @@ import {
 } from './phrase-manager';
 import { register as registerUsageStatistic } from './usage-statistic';
 import { getFirebotProfileDataFolderPath } from './utils/file-system';
+import { redirectConsole } from './utils/local-console';
 import { register as registerWebInterface } from './web-interface';
 
 export class Firebutt {
@@ -95,7 +96,7 @@ export class Firebutt {
 
   async register() {
     const { logger } = this._modules;
-    this.redirectConsole();
+    redirectConsole({ logger });
 
     try {
       await registerNotificationManager(this, {
@@ -151,30 +152,6 @@ export class Firebutt {
         logger.error('Failed to register Firebutt', error);
       }
     }
-  }
-
-  redirectConsole() {
-    const { logger } = this._modules;
-    const originalConsole = console;
-
-    console = {
-      ...originalConsole,
-      debug: (...args: unknown[]) => {
-        logger.info(`${formattedName}:`, ...args);
-      },
-      info: (...args: unknown[]) => {
-        logger.info(`${formattedName}:`, ...args);
-      },
-      log: (...args: unknown[]) => {
-        logger.info(`${formattedName}:`, ...args);
-      },
-      warn: (...args: unknown[]) => {
-        logger.warn(`${formattedName}:`, ...args);
-      },
-      error: (...args: unknown[]) => {
-        logger.error(`${formattedName}:`, ...args);
-      },
-    };
   }
 
   unregister() {
