@@ -195,7 +195,7 @@ export function AddEditPhraseDialog({
           <InputLabel id='partOfSpeechLabel'>Part of Speech</InputLabel>
           <Select
             defaultValue={phraseData?.partOfSpeech}
-            id='partOfSpeech'
+            inputProps={{ id: 'partOfSpeech', name: 'partOfSpeech' }}
             label='Part of Speech'
             labelId='partOfSpeechLabel'
             margin='dense'
@@ -204,7 +204,7 @@ export function AddEditPhraseDialog({
           >
             {Object.entries(partOfSpeech).map(
               ([tag, { description, examples }]) => (
-                <MenuItem value={tag}>
+                <MenuItem key={tag} value={tag}>
                   <Box
                     sx={{
                       display: 'flex',
