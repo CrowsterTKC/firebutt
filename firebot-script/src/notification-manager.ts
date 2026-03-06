@@ -90,6 +90,10 @@ export async function getNotification({
   return await notificationRepository.findOne({ where: { id } });
 }
 
+export function getNotificationRepository(): Repository<Notification> {
+  return notificationRepository;
+}
+
 export async function getNotifications(): Promise<Notification[]> {
   return await notificationRepository.find();
 }

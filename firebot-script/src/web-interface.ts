@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 import { Firebutt } from './firebutt';
 import { Params } from './params';
 import { getScriptVersion } from './web-interface-routes/get-script-version';
+import { crudNotifications } from './web-interface-routes/notifications';
 import { crudPhrases } from './web-interface-routes/phrases';
 import { rqUsageStatistics } from './web-interface-routes/usage-statistics';
 
@@ -23,7 +24,7 @@ const singlePageAppHtml = `
     />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Firebutt — Phrase Management</title>
+    <title>Firebutt</title>
     <script type="module" crossorigin src="/integrations/firebutt/management/static/bundle.js?${uuid()}"></script>
     <link rel="stylesheet" crossorigin href="/integrations/firebutt/management/static/bundle.css?${uuid()}">
   </head>
@@ -78,6 +79,7 @@ export function register(
   );
 
   getScriptVersion(_, { firebot, modules, parameters });
+  crudNotifications(_, { firebot, modules, parameters });
   crudPhrases(_, { firebot, modules, parameters });
   rqUsageStatistics(_, { firebot, modules, parameters });
 }

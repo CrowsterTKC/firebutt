@@ -61,16 +61,19 @@ export default function PhraseManagement() {
   }, [refresh, setRows]);
 
   return (
-    <EnhancedTable<PhraseData>
-      addItemComponent={AddEditPhraseDialog}
-      columns={columns}
-      defaultColumnForOrderBy='originalPhrase'
-      deleteItemComponent={DeletePhraseDialog}
-      editItemComponent={AddEditPhraseDialog}
-      entityNameForTooltips='Phrase'
-      handleRefresh={handleRefresh}
-      rows={rows}
-      tableTitle='Phrase Management'
-    />
+    <>
+      <title>Firebutt — Phrase Management</title>
+      <EnhancedTable<PhraseData>
+        addItemComponent={AddEditPhraseDialog}
+        columns={columns}
+        defaultColumnForOrderBy='originalPhrase'
+        deleteItemComponent={DeletePhraseDialog}
+        editItemComponent={AddEditPhraseDialog}
+        entityNameForTooltips='Phrase'
+        handleRefresh={handleRefresh}
+        rows={rows}
+        tableTitle='Phrase Management'
+      />
+    </>
   );
 }

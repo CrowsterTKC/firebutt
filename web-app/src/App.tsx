@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Header } from './components/Header';
 import { WEB } from './constants/app';
 import { VersionProvider } from './providers/version-provider';
+import { YearlyRecapProvider } from './providers/yearly-recap-provider';
 import { Routes } from './routes';
 
 export default function App() {
@@ -25,25 +26,39 @@ export default function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter basename={WEB.BASE_ROUTE}>
           <VersionProvider>
-            <GlobalStyles
-              styles={(theme) => ({
-                body: {
-                  backgroundColor: theme.palette.background.default,
-                  color: theme.palette.text.primary,
-                  margin: 0,
-                  padding: 0,
-                },
-              })}
-            />
-            <Header />
-            <Container
-              sx={{ mx: 'auto', px: '48px !important', py: '24px !important' }}
-            >
-              <Routes />
-            </Container>
+            <FeatureProviders>
+              <GlobalStyles
+                styles={(theme) => ({
+                  body: {
+                    backgroundColor: theme.palette.background.default,
+                    color: theme.palette.text.primary,
+                    margin: 0,
+                    padding: 0,
+                  },
+                })}
+              />
+              <Header />
+              <Container
+                sx={{
+                  mx: 'auto',
+                  px: '48px !important',
+                  py: '24px !important',
+                }}
+              >
+                <Routes />
+              </Container>
+            </FeatureProviders>
           </VersionProvider>
         </BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>
+  );
+}
+
+function FeatureProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <YearlyRecapProvider>{children}</YearlyRecapProvider>
+    </>
   );
 }
