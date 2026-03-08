@@ -11,6 +11,7 @@ export interface Params extends Record<string, unknown> {
   ignoreUsernames: string;
   isEnabled: boolean;
   // populateDefaultPhrases: boolean;
+  postProcessing: object;
   responseProbability: number;
   responder: string;
 }
@@ -65,6 +66,12 @@ export function getDefaultParameters(): ParametersConfig<Params> {
       title: 'Responder',
       description:
         'Select the account that Firebutt will use to send responses.',
+    },
+    postProcessing: {
+      type: 'effectlist',
+      title: 'Post-Processing Effects',
+      description:
+        'A list of effects that will be applied after phrase replacement and before sending the response. Use `$effectOutput[firebuttProcessedMessage]` to access the message after phrase replacement in your effects and use Set Output effect with output name `postProcessedMessage` to modify the final message that will be sent to chat.',
     },
   };
 }

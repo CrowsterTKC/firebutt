@@ -1,4 +1,5 @@
 import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
+import { Effects } from '@crowbartools/firebot-custom-scripts-types/types/effects';
 import { ChatClient, ChatMessage } from '@twurple/chat';
 import { plural } from 'pluralize';
 import { Lexer, Tagger } from 'pos';
@@ -13,11 +14,7 @@ let chatClient: ChatClient;
 
 export function register(
   firebutt: Firebutt,
-  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>,
-  postProcessor: (
-    runRequest: Omit<RunRequest<Params>, 'trigger'>,
-    message: string
-  ) => string = (_, message) => message
+  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>
 ) {
   const { logger, twitchApi } = modules;
   chatClient = new ChatClient({
@@ -33,8 +30,7 @@ export function register(
         { firebot, modules, parameters },
         user,
         messageText,
-        chatMessage,
-        postProcessor
+        chatMessage
       ).catch((error) => {
         if (error instanceof Error) {
           logger.error('Firebutt:', error.message);
@@ -50,11 +46,7 @@ async function execute(
   runRequest: Omit<RunRequest<Params>, 'trigger'>,
   user: string,
   messageText: string,
-  chatMessage: ChatMessage,
-  postProcessor: (
-    runRequest: Omit<RunRequest<Params>, 'trigger'>,
-    message: string
-  ) => string
+  chatMessage: ChatMessage
 ) {
   const {
     firebot: {
@@ -63,8 +55,14 @@ async function execute(
     modules: { twitchApi, userDb: UserDb, utils: Utils },
   } = runRequest;
 
-  const { ignoreRoles, ignoreUsernames, responder, responseProbability } =
-    firebutt.getParameters() as Params;
+  const {
+    ignoreRoles,
+    ignoreUsernames,
+    postProcessing,
+    responder,
+    responseProbability,
+  } = firebutt.getParameters() as Params;
+  const postProcessingTyped = postProcessing as Effects.EffectList;
 
   const ignoreRolesArray = ignoreRoles.split(',').map((role) => role.trim());
   const ignoreUsernamesArray = ignoreUsernames
@@ -159,7 +157,36 @@ async function execute(
   }
 
   if (response !== messageText) {
-    const replacementMessage = postProcessor(runRequest, response);
+    const postProcessingOutput = runRequest.modules.effectRunner.processEffects(
+      {
+        trigger: {
+          type: 'startup_script',
+          metadata: {
+            username: user,
+            effectOutput: response,
+          },
+        },
+        effects: {
+          ...postProcessingTyped,
+          list: [
+            {
+              id: '0e8fe349-3c74-4f04-892e-dfe022e4f3f0',
+              type: 'firebot:set-output',
+              active: true,
+              outputNames: {
+                customOutput: 'firebuttProcessedMessage',
+              },
+              data: response,
+              percentWeight: null,
+            },
+            ...postProcessingTyped.list,
+          ],
+        },
+      }
+    );
+
+    const replacementMessage =
+      (await postProcessingOutput)?.outputs?.postProcessedMessage ?? response;
     sendChatMessage(runRequest, replacementMessage);
 
     const streamTitle = (
@@ -178,6 +205,7 @@ async function execute(
         responseProbability,
         metadata: {
           phraseId: stat.id,
+          prePostProcessingMessage: response,
           rawMessage: chatMessage,
           twitchAvatarUrl: twitchUser.profilePictureUrl,
           twitchUserId: twitchUser.id,
