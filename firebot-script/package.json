@@ -4,7 +4,7 @@
   "author": "CrowsterTKC",
   "description": "A Firebot script replacement for the defunct buttsbot that repeats random chat messages and replaces random words from its phrase dictionary.",
   "scriptOutputName": "firebutt",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "src/main.ts",
   "license": "GPL-3.0-or-later",
   "scripts": {
