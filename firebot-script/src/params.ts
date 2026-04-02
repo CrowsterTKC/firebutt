@@ -71,7 +71,9 @@ export function getDefaultParameters(): ParametersConfig<Params> {
       type: 'effectlist',
       title: 'Post-Processing Effects',
       description:
-        'A list of effects that will be applied after phrase replacement and before sending the response. Use `$effectOutput[firebuttProcessedMessage]` to access the message after phrase replacement in your effects and use Set Output effect with output name `postProcessedMessage` to modify the final message that will be sent to chat.',
+        'A list of effects that will be applied after phrase replacement and before sending the response. Use `$effectOutput[firebuttProcessedMessage]` to access the message after phrase replacement in your effects and use Set Output effect with output name `postProcessedMessage` to modify the final message that will be sent to chat. Additionally, the following variables are available for use in your effects: \n' +
+        '- `$effectOutput[originalMessage]`: The original message before any processing.\n' +
+        '- `$effectOutput[user]`: The username of the user who sent the message.\n',
     },
   };
 }

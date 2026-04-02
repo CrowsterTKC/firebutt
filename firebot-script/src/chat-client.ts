@@ -179,6 +179,26 @@ async function execute(
               data: response,
               percentWeight: null,
             },
+            {
+              id: 'ee587f78-6e1e-4139-a220-586c9b29c2be',
+              type: 'firebot:set-output',
+              active: true,
+              outputNames: {
+                customOutput: 'originalMessage',
+              },
+              data: messageText,
+              percentWeight: null,
+            },
+            {
+              id: 'af768e7c-d0f9-4776-937c-7f157c4623e4',
+              type: 'firebot:set-output',
+              active: true,
+              outputNames: {
+                customOutput: 'user',
+              },
+              data: user,
+              percentWeight: null,
+            },
             ...postProcessingTyped.list,
           ],
         },
