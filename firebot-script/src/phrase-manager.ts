@@ -21,6 +21,7 @@ export async function addPhrase({
   partOfSpeech,
   expiresAt,
   createdByUser,
+  category,
 }: AddPhraseProps): Promise<Phrase> {
   const existingPhrase = await phraseRepository.findOne({
     where: [{ replacementPhrase }, ...(expiresAt ? [{ expiresAt }] : [])],
@@ -49,6 +50,7 @@ export async function addPhrase({
       partOfSpeech,
       expiresAt,
       createdByUser: twitchUser.displayName,
+      category: category ?? null,
       metadata: {
         twitchAvatarUrl: twitchUser.profilePictureUrl,
         twitchUserId: twitchUser.id,
@@ -93,8 +95,20 @@ export async function getPhrase({
   return await phraseRepository.findOne({ where: { id } });
 }
 
-export function getPhraseCache(): Record<string, Phrase> {
-  return phraseCache;
+export function getPhraseCache({
+  categories,
+}: { categories?: string[] } = {}): Record<string, Phrase> {
+  if (categories) {
+    const filteredCache: Record<string, Phrase> = {};
+    Object.entries(phraseCache).forEach(([key, phrase]) => {
+      if (categories.includes(phrase.category ?? '')) {
+        filteredCache[key] = phrase;
+      }
+    });
+    return filteredCache;
+  } else {
+    return phraseCache;
+  }
 }
 
 export async function getPhrasesBy(
@@ -171,6 +185,7 @@ export async function updatePhrase(
     partOfSpeech,
     expiresAt,
     createdByUser,
+    category,
   }: UpdatePhraseProps
 ): Promise<Phrase> {
   const twitchUser =
@@ -182,6 +197,7 @@ export async function updatePhrase(
     partOfSpeech,
     expiresAt,
     createdByUser: twitchUser.displayName,
+    category: category ?? null,
     metadata: {
       twitchAvatarUrl: twitchUser.profilePictureUrl,
       twitchUserId: twitchUser.id,
