@@ -36,7 +36,11 @@ const singlePageAppHtml = `
 
 export function register(
   _: Firebutt,
-  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    firebot,
+    modules,
+    parameters,
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const { httpServer } = modules;
 

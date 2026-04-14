@@ -133,7 +133,7 @@ export function getPhraseRepository(): Repository<Phrase> {
 
 export async function register(
   firebutt: Firebutt,
-  { modules }: Omit<RunRequest<Params>, 'trigger'>
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ): Promise<void> {
   phraseRepository = firebutt.getDataSource().getRepository(Phrase);
   firebotModules = modules;

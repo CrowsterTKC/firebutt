@@ -20,6 +20,7 @@
   "devDependencies": {
     "@crowbartools/firebot-custom-scripts-types": "^5.63.1",
     "@eslint/compat": "^1.2.6",
+    "@types/express": "^5.0.5",
     "@types/node": "^22.10.5",
     "@types/pluralize": "^0.0.33",
     "@types/semver": "^7.5.8",
@@ -35,6 +36,7 @@
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "highlight.js": "^11.11.1",
     "prettier": "^3.4.2",
     "prettier-eslint": "^16.3.0",
     "string-replace-loader": "^3.1.0",
@@ -47,8 +49,10 @@
     "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
-    "@twurple/auth": "^7.2.1",
-    "@twurple/chat": "^7.2.1",
+    "@twurple/api": "^8.0.3",
+    "@twurple/auth": "^8.0.3",
+    "@twurple/chat": "^8.0.3",
+    "@twurple/eventsub-ws": "^8.0.3",
     "node-json-db": "^2.3.1",
     "pluralize": "^8.0.0",
     "pos": "^0.4.2",
