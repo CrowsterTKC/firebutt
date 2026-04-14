@@ -31,6 +31,9 @@ export class Phrase {
   @Column({ name: 'created_by_user' })
   createdByUser!: string;
 
+  @Column({ name: 'category', nullable: true, type: 'text' })
+  category: string | null = null;
+
   @CreateDateColumn({ name: 'inserted_at' })
   insertedAt!: Date;
 

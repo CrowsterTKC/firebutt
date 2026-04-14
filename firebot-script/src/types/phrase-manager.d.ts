@@ -4,6 +4,7 @@ export interface AddPhraseProps {
   partOfSpeech: string | null;
   expiresAt: Date | null;
   createdByUser: string;
+  category?: string | null;
 }
 
 export interface UpdatePhraseProps {
@@ -12,4 +13,5 @@ export interface UpdatePhraseProps {
   partOfSpeech: string | null;
   expiresAt: Date | null;
   createdByUser: string;
+  category?: string | null;
 }
