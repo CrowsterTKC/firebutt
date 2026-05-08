@@ -14,7 +14,11 @@ let chatClient: ChatClient;
 
 export function register(
   firebutt: Firebutt,
-  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    firebot,
+    modules,
+    parameters,
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const { logger, twitchApi } = modules;
   chatClient = new ChatClient({
@@ -43,7 +47,7 @@ export function register(
 
 async function execute(
   firebutt: Firebutt,
-  runRequest: Omit<RunRequest<Params>, 'trigger'>,
+  runRequest: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>,
   user: string,
   messageText: string,
   chatMessage: ChatMessage
@@ -352,7 +356,7 @@ function matchCase(originalPhrase: string, replacementPhrase: string) {
 }
 
 function sendChatMessage(
-  runRequest: Omit<RunRequest<Params>, 'trigger'>,
+  runRequest: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>,
   message: string
 ) {
   const {

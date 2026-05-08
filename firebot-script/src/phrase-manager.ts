@@ -133,8 +133,10 @@ export function getPhraseRepository(): Repository<Phrase> {
 
 export async function register(
   firebutt: Firebutt,
-  { modules }: Omit<RunRequest<Params>, 'trigger'>
+  runRequest: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ): Promise<void> {
+  const { modules } = runRequest;
+
   phraseRepository = firebutt.getDataSource().getRepository(Phrase);
   firebotModules = modules;
   const phrases = await getPhrases();
@@ -150,6 +152,8 @@ export async function register(
     localConsole.log('Running purgeExpiredPhrasesJob');
     await purgeExpiredPhrases();
   }, 1000 * 60);
+
+  listeners(firebutt, runRequest);
 }
 
 export function unregister(): void {
@@ -194,6 +198,27 @@ export async function updatePhrase(
     phraseCache[originalPhrase] = updatedPhrase;
   });
   return updatedPhrase;
+}
+
+function listeners(
+  firebutt: Firebutt,
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
+) {
+  const { frontendCommunicator } = modules;
+
+  frontendCommunicator.onAsync<[], IpcReturn<'phrases', Phrase[]>>(
+    'firebutt:getAllPhraseData',
+    async () => {
+      localConsole.log('Fetching all phrase data...');
+      try {
+        const phrases = await getPhrases();
+        return { success: true, phrases };
+      } catch (error) {
+        localConsole.error('Error fetching phrase data:', error);
+        return { success: false, phrases: [], error: (error as Error).message };
+      }
+    }
+  );
 }
 
 async function purgeExpiredPhrases(): Promise<void> {

@@ -9,6 +9,7 @@ import {
 import { Config, JsonDB } from 'node-json-db';
 import { DataSource } from 'typeorm';
 
+import { register as registerAppInterface } from './app-interface/phrase-management/index';
 import {
   register as registerChatClient,
   unregister as unregisterChatClient,
@@ -19,6 +20,7 @@ import {
 } from './custom-effect';
 import { scriptOutputName } from '../package.json';
 import { registerFirebuttResponseProbablityReplaceVariable } from './custom-replace-variable';
+import { register as registerIpc } from './ipc/index';
 import {
   register as registerNotificationManager,
   unregister as unregisterNotificationManager,
@@ -120,6 +122,16 @@ export class Firebutt {
         parameters: this._parameters,
       });
       await registerWebInterface(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerIpc(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerAppInterface(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,

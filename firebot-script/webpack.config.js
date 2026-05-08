@@ -7,24 +7,24 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 const packageJson = require('./package.json');
 
-const dynamicallyGeneratedRules = fs
-  .readdirSync(
-    path.resolve(__dirname, './node_modules/highlight.js/lib/languages')
-  )
-  .reduce((acc, fileName) => {
-    const lang = fileName.split('.')[0];
-    return [
-      ...acc,
-      {
-        test: /highlight\.js\/lib\/index\.js$/,
-        loader: 'string-replace-loader',
-        options: {
-          search: `hljs.registerLanguage('${lang}', require('./languages/${lang}'));`,
-          replace: '',
-        },
-      },
-    ];
-  }, []);
+// const dynamicallyGeneratedRules = fs
+//   .readdirSync(
+//     path.resolve(__dirname, './node_modules/highlight.js/lib/languages')
+//   )
+//   .reduce((acc, fileName) => {
+//     const lang = fileName.split('.')[0];
+//     return [
+//       ...acc,
+//       {
+//         test: /highlight\.js\/lib\/index\.js$/,
+//         loader: 'string-replace-loader',
+//         options: {
+//           search: `hljs.registerLanguage('${lang}', require('./languages/${lang}'));`,
+//           replace: '',
+//         },
+//       },
+//     ];
+//   }, []);
 
 module.exports = {
   target: 'node',
@@ -71,8 +71,8 @@ module.exports = {
     noParse: /node_modules\/sql\.js\/dist\/sql-wasm\.js$/,
     rules: [
       {
-        test: /\.html$/i,
-        loader: 'html-loader',
+        test: /\.page$/,
+        use: 'raw-loader',
       },
       {
         test: /\.tsx?$/,
@@ -82,7 +82,7 @@ module.exports = {
         test: /\.wasm$/,
         type: 'javascript/auto',
       },
-      ...dynamicallyGeneratedRules,
+      // ...dynamicallyGeneratedRules,
     ],
   },
   optimization: {

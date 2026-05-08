@@ -17,19 +17,19 @@ export function redirectConsole({
   localConsole = {
     ...originalConsole,
     debug: (...args: unknown[]) => {
-      logger.debug(`${formattedName}:`, ...args);
+      logger.debug(`${formattedName}: ${args.map(String).join(' ')}`);
     },
     info: (...args: unknown[]) => {
-      logger.info(`${formattedName}:`, ...args);
+      logger.info(`${formattedName}: ${args.map(String).join(' ')}`);
     },
     log: (...args: unknown[]) => {
-      logger.info(`${formattedName}:`, ...args);
+      logger.info(`${formattedName}: ${args.map(String).join(' ')}`);
     },
     warn: (...args: unknown[]) => {
-      logger.warn(`${formattedName}:`, ...args);
+      logger.warn(`${formattedName}: ${args.map(String).join(' ')}`);
     },
     error: (...args: unknown[]) => {
-      logger.error(`${formattedName}:`, ...args);
+      logger.error(`${formattedName}: ${args.map(String).join(' ')}`);
     },
   };
 }

@@ -1,0 +1,163 @@
+<div style="min-width: 500px; height: 100%" ng-if="!loading">
+  <div style="height: 100%; display: flex; flex-direction: column">
+    <div id="testDivFb" class="flex-row" style="height: 100%">
+      <div class="editor-column pt-6" style="flex-shrink: 0">
+        <div
+          class="flex-row-center jspacebetween scene-row"
+          style="flex-shrink: 0"
+          ng-class="{
+            selected: firebuttService.tabIsSelected('generalphrases'),
+          }"
+          ng-click="firebuttService.setSelectedTab('generalphrases')"
+        >
+          <div class="flex-row-center" style="height: 100%">
+            <div>
+              General Phrases
+              <tooltip
+                text="'A collection of phrases that are always active, regardless of which phrase sets are active.'"
+              ></tooltip>
+            </div>
+          </div>
+          <div class="flex-row-center jspacebetween">
+            <span
+              class="status-dot active"
+              uib-tooltip="Main phrases are always active."
+              tooltip-append-to-body="true"
+            ></span>
+            <div
+              uib-dropdown
+              uib-dropdown-toggle
+              dropdown-append-to-body="true"
+              class="clickable"
+              ng-click="$event.stopPropagation()"
+              style="
+                font-size: 21px;
+                height: 20px;
+                width: 36px;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <span class="noselect pointer"
+                ><i class="fal fa-ellipsis-v"></i
+              ></span>
+              <ul class="dropdown-menu" uib-dropdown-menu>
+                <li ng-click="copyEvents('generalphrases')">
+                  <a href
+                    ><span
+                      class="iconify mr-4"
+                      data-icon="mdi:content-copy"
+                    ></span>
+                    Copy events</a
+                  >
+                </li>
+                <li
+                  ng-class="{ disabled: !hasCopiedEvents() }"
+                  ng-click="pasteEvents('mainevents')"
+                  ng-disabled="!hasCopiedEvents()"
+                >
+                  <a href
+                    ><span
+                      class="iconify mr-4"
+                      data-icon="mdi:content-paste"
+                    ></span>
+                    Paste event(s)</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="mt-6 mb-4 mx-0"
+          style="height: 2px; background: #3e3f40; flex-shrink: 0"
+        ></div>
+
+        <div
+          class="modal-subheader flex-row-center jspacebetween"
+          style="flex-shrink: 0"
+        >
+          <span
+            >Phrase Sets
+            <tooltip
+              text="'Phrase Sets allow you to create different sets of phrases (ie for specific games or holiday themes) and selectively activate them.'"
+            ></tooltip
+          ></span>
+          <div
+            class="clickable"
+            ng-click="showCreatePhraseGroupModal()"
+            aria-label="New Phrase Set"
+          >
+            <i class="fas fa-plus-circle"></i>
+          </div>
+        </div>
+
+        <div
+          style="height: 100%; overflow-y: auto"
+          ui-sortable="sortableOptions"
+          ng-model="phraseSets"
+        >
+          <div
+            class="muted ml-7"
+            ng-if="es.getPhraseGroups().length < 1"
+            style="font-size: 12px"
+          >
+            No sets created.
+          </div>
+
+          <div
+            ng-repeat="group in es.getPhraseGroups() | orderBy: sortPhraseSets track by group.id"
+            class="flex-row-center jspacebetween scene-row"
+            ng-class="{ selected: es.tabIsSelected(group.id) }"
+            ng-click="es.setSelectedTab(group.id)"
+          >
+            <div class="flex-row-center" style="height: 100%">
+              <div class="row-text" style="max-width: 145px">
+                {{ group.name }}
+              </div>
+            </div>
+            <div class="flex-row-center jspacebetween">
+              <span
+                aria-label="Currently Active"
+                ng-if="group.active"
+                class="status-dot active"
+                uib-tooltip="This phrase set is active"
+                tooltip-append-to-body="true"
+              ></span>
+              <span class="phrase-set-drag-handle dragHandle">
+                <i class="fas fa-bars"></i>
+              </span>
+              <button
+                aria-label="Phrase Set Options"
+                class="noselect clickable text-3xl mx-3"
+                style="background: transparent; border: none"
+                context-menu="phraseSetMenuOptions(group)"
+                context-menu-class="angular-context-menu"
+                context-menu-on="click"
+                context-menu-orientation="left"
+              >
+                <i class="fal fa-ellipsis-v"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <firebot-item-table
+        add-new-button-text="New Phrase"
+        context-menu-options="phraseMenuOptions(item)"
+        headers="headers"
+        items="phrases"
+        no-data-message="No phrases saved. You should make one! :)"
+        none-found-message="No phrases found."
+        on-add-new-clicked="showAddOrEditPhraseModal()"
+        on-items-update="updatePhrasesForCurrentGroup(items)"
+        search-placeholder="Search phrases"
+        sort-tag-context="phrases"
+      ></firebot-item-table>
+    </div>
+  </div>
+</div>
