@@ -1,10 +1,12 @@
+import { Category } from '../entities/categories';
+
 export interface AddPhraseProps {
   originalPhrase: string[];
   replacementPhrase: string;
   partOfSpeech: string | null;
   expiresAt: Date | null;
   createdByUser: string;
-  category?: string | null;
+  category?: Category | null;
 }
 
 export interface UpdatePhraseProps {
@@ -13,5 +15,5 @@ export interface UpdatePhraseProps {
   partOfSpeech: string | null;
   expiresAt: Date | null;
   createdByUser: string;
-  category?: string | null;
+  category?: Category | null;
 }

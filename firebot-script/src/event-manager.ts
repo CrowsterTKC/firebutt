@@ -10,7 +10,7 @@ let eventSubWsListener: EventSubWsListener;
 const subscriptions: Array<EventSubSubscription> = [];
 
 export async function register(
-  { setCategory }: Firebutt,
+  firebutt: Firebutt,
   { firebot, modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const {
@@ -32,14 +32,14 @@ export async function register(
       localConsole.log(
         `Received channel update event for category "${event.categoryName}".`
       );
-      setCategory(event.categoryName ?? 'unknown');
+      firebutt.setCategory(event.categoryName ?? 'unknown');
     }
   );
 
   subscriptions.push(channelUpdateSubscription);
 
   const response = await twitchApi.channels.getChannelInformation(userId);
-  setCategory(response?.gameName ?? 'unknown');
+  firebutt.setCategory(response?.gameName ?? 'unknown');
 }
 
 export function unregister() {}

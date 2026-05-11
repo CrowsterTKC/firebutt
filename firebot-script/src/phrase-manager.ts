@@ -101,7 +101,7 @@ export function getPhraseCache({
   if (categories) {
     const filteredCache: Record<string, Phrase> = {};
     Object.entries(phraseCache).forEach(([key, phrase]) => {
-      if (categories.includes(phrase.category ?? '')) {
+      if (categories.includes(phrase.category?.name ?? '')) {
         filteredCache[key] = phrase;
       }
     });
