@@ -1,6 +1,7 @@
 import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
-import { FindOneOptions, LessThan, Repository } from 'typeorm';
+import { FindOneOptions, IsNull, LessThan, Repository } from 'typeorm';
 
+import { Category } from './entities/categories';
 import { Phrase } from './entities/phrase';
 import { Firebutt } from './firebutt';
 import { newGuid } from './guid-handler';
@@ -8,6 +9,8 @@ import { Params } from './params';
 import { AddPhraseProps, UpdatePhraseProps } from './types/phrase-manager';
 import { localConsole } from './utils/local-console';
 
+let categoryRepository: Repository<Category> =
+  null as unknown as Repository<Category>;
 let firebotModules: RunRequest<Params>['modules'] =
   null as unknown as RunRequest<Params>['modules'];
 let phraseRepository: Repository<Phrase> =
@@ -15,12 +18,26 @@ let phraseRepository: Repository<Phrase> =
 const phraseCache: Record<string, Phrase> = {};
 let purgeExpiredPhrasesJob: NodeJS.Timeout | null = null;
 
+export async function addCategory(name: string): Promise<Category> {
+  const { id, guid } = newGuid({ type: 'category' });
+  const category = categoryRepository.merge(new Category(), {
+    id,
+    guid,
+    name,
+    isEnabled: true,
+    order: await categoryRepository.countBy({ deletedAt: IsNull() }),
+  });
+  await categoryRepository.save(category);
+  return category;
+}
+
 export async function addPhrase({
   originalPhrase,
   replacementPhrase,
   partOfSpeech,
   expiresAt,
   createdByUser,
+  category,
 }: AddPhraseProps): Promise<Phrase> {
   const existingPhrase = await phraseRepository.findOne({
     where: [{ replacementPhrase }, ...(expiresAt ? [{ expiresAt }] : [])],
@@ -49,6 +66,7 @@ export async function addPhrase({
       partOfSpeech,
       expiresAt,
       createdByUser: twitchUser.displayName,
+      category: category ?? null,
       metadata: {
         twitchAvatarUrl: twitchUser.profilePictureUrl,
         twitchUserId: twitchUser.id,
@@ -71,6 +89,11 @@ export async function addPhrase({
   }
 }
 
+export async function deleteCategory({ id }: { id: string }): Promise<boolean> {
+  const deleted = await categoryRepository.softDelete({ id });
+  return (deleted.affected ?? 0) > 0;
+}
+
 export async function deletePhrase({ id }: { id: string }): Promise<boolean> {
   const deleted = await phraseRepository.softDelete({ id });
 
@@ -85,6 +108,37 @@ export async function deletePhrase({ id }: { id: string }): Promise<boolean> {
   return (deleted.affected ?? 0) > 0;
 }
 
+export async function getCategory({
+  id,
+}: {
+  id: string;
+}): Promise<Category | null> {
+  return await categoryRepository.findOne({ where: { id } });
+}
+
+export async function getCategories(
+  {
+    isEnabled,
+  }: {
+    isEnabled: 'true' | 'false' | 'all';
+  } = { isEnabled: 'all' }
+): Promise<Category[]> {
+  const where = isEnabled === 'all' ? {} : { isEnabled: isEnabled === 'true' };
+  return await categoryRepository.find({
+    where,
+    order: { order: 'ASC' },
+  });
+}
+
+export async function getOrCreateCategory(name: string): Promise<Category> {
+  let category = await categoryRepository.findOne({ where: { name } });
+
+  if (!category) {
+    category = await addCategory(name);
+  }
+  return category;
+}
+
 export async function getPhrase({
   id,
 }: {
@@ -93,8 +147,20 @@ export async function getPhrase({
   return await phraseRepository.findOne({ where: { id } });
 }
 
-export function getPhraseCache(): Record<string, Phrase> {
-  return phraseCache;
+export function getPhraseCache({
+  categories,
+}: { categories?: string[] } = {}): Record<string, Phrase> {
+  if (categories) {
+    const filteredCache: Record<string, Phrase> = {};
+    Object.entries(phraseCache).forEach(([key, phrase]) => {
+      if (categories.includes(phrase.category?.name ?? '')) {
+        filteredCache[key] = phrase;
+      }
+    });
+    return filteredCache;
+  } else {
+    return phraseCache;
+  }
 }
 
 export async function getPhrasesBy(
@@ -133,8 +199,9 @@ export function getPhraseRepository(): Repository<Phrase> {
 
 export async function register(
   firebutt: Firebutt,
-  { modules }: Omit<RunRequest<Params>, 'trigger'>
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ): Promise<void> {
+  categoryRepository = firebutt.getDataSource().getRepository(Category);
   phraseRepository = firebutt.getDataSource().getRepository(Phrase);
   firebotModules = modules;
   const phrases = await getPhrases();
@@ -163,6 +230,23 @@ export function unregister(): void {
   }
 }
 
+export async function updateCategory(
+  category: Category,
+  {
+    name,
+    isEnabled,
+    order,
+  }: Partial<Pick<Category, 'name' | 'isEnabled' | 'order'>>
+): Promise<Category> {
+  const updatedCategory = categoryRepository.merge(category, {
+    name,
+    isEnabled,
+    order,
+  });
+  await categoryRepository.save(updatedCategory);
+  return updatedCategory;
+}
+
 export async function updatePhrase(
   phrase: Phrase,
   {
@@ -171,6 +255,7 @@ export async function updatePhrase(
     partOfSpeech,
     expiresAt,
     createdByUser,
+    category,
   }: UpdatePhraseProps
 ): Promise<Phrase> {
   const twitchUser =
@@ -182,6 +267,7 @@ export async function updatePhrase(
     partOfSpeech,
     expiresAt,
     createdByUser: twitchUser.displayName,
+    category: category ?? null,
     metadata: {
       twitchAvatarUrl: twitchUser.profilePictureUrl,
       twitchUserId: twitchUser.id,

@@ -8,6 +8,8 @@ import { CreateNotifications1739290727420 } from './20250211081847-create_notifi
 import { AddMetadataPhraseIdFkeyToUsageStatistics1740929292291 } from './20250302072812-add_metadata_phrase_id_fkey_to_usage_statistics';
 import { AddMetadataToPhrases1743510827528 } from './20250401053347-add_metadata_to_phrases';
 import { AddDefaultPhrases1743512080156 } from './20250401055440-add_default_phrases';
+import { CreateCategories1778254461267 } from './20260508083421-create_categories';
+import { AddCategoryToPhrases1778422667924 } from './20260510071747-add_category_to_phrases';
 // import statements above
 
 export const migrations: MixedList<string | Function> = [
@@ -18,5 +20,7 @@ export const migrations: MixedList<string | Function> = [
   AddMetadataPhraseIdFkeyToUsageStatistics1740929292291,
   AddMetadataToPhrases1743510827528,
   AddDefaultPhrases1743512080156,
+  CreateCategories1778254461267,
+  AddCategoryToPhrases1778422667924,
   // migration scripts above
 ];
