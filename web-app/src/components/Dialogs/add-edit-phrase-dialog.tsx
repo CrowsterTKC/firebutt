@@ -17,9 +17,12 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
+import semver from 'semver';
 
 import { WEB } from '../../constants/app';
 import { partOfSpeech } from '../../constants/pos';
+import { useCategory } from '../../hooks/use-category';
+import { useVersion } from '../../hooks/use-version';
 import { DialogComponentProps } from '../EnhancedTable';
 
 interface AddEditPhraseDialogProps extends DialogComponentProps {
@@ -39,6 +42,9 @@ export function AddEditPhraseDialog({
   mode,
   open,
 }: AddEditPhraseDialogProps) {
+  const { categories, selectedCategory } = useCategory();
+  const { scriptVersion } = useVersion();
+
   const dialogTitle = useMemo(() => {
     return mode === 'add' ? 'Add Phrase' : 'Edit Phrase';
   }, [mode]);
@@ -48,6 +54,7 @@ export function AddEditPhraseDialog({
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const {
+        categoryId,
         createdByUser,
         expiresAt,
         expiresInDays,
@@ -80,6 +87,10 @@ export function AddEditPhraseDialog({
               ? addDays(new Date(), Number(expiresInDays))
               : null,
           createdByUser,
+          categoryId:
+            categoryId !== '00000000-0000-0000-0000-000000000000'
+              ? categoryId
+              : null,
         };
 
         const response = await fetch(
@@ -116,6 +127,10 @@ export function AddEditPhraseDialog({
           partOfSpeech,
           expiresAt: expiresAt ? new Date(expiresAt) : null,
           createdByUser,
+          categoryId:
+            categoryId !== '00000000-0000-0000-0000-000000000000'
+              ? categoryId
+              : null,
         };
 
         const response = await fetch(
@@ -228,6 +243,25 @@ export function AddEditPhraseDialog({
             )}
           </Select>
         </FormControl>
+        {semver.satisfies(scriptVersion, '>=2.0.0') && (
+          <FormControl fullWidth margin='dense' variant='standard'>
+            <InputLabel id='categoryLabel'>Category</InputLabel>
+            <Select
+              defaultValue={selectedCategory}
+              inputProps={{ id: 'categoryId', name: 'categoryId' }}
+              label='Category'
+              labelId='categoryLabel'
+              margin='dense'
+              variant='standard'
+            >
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         {mode === 'add' ? (
           <TextField
             fullWidth

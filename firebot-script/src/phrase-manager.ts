@@ -18,13 +18,16 @@ let phraseRepository: Repository<Phrase> =
 const phraseCache: Record<string, Phrase> = {};
 let purgeExpiredPhrasesJob: NodeJS.Timeout | null = null;
 
-export async function addCategory(name: string): Promise<Category> {
+export async function addCategory(
+  name: string,
+  isEnabled: boolean = true
+): Promise<Category> {
   const { id, guid } = newGuid({ type: 'category' });
   const category = categoryRepository.merge(new Category(), {
     id,
     guid,
     name,
-    isEnabled: true,
+    isEnabled,
     order: await categoryRepository.countBy({ deletedAt: IsNull() }),
   });
   await categoryRepository.save(category);
@@ -91,7 +94,10 @@ export async function addPhrase({
 
 export async function deleteCategory({ id }: { id: string }): Promise<boolean> {
   const deleted = await categoryRepository.softDelete({ id });
-  return (deleted.affected ?? 0) > 0;
+  const phrasesDeleted = await phraseRepository.softDelete({
+    category: { id },
+  });
+  return (deleted.affected ?? 0) + (phrasesDeleted.affected ?? 0) > 0;
 }
 
 export async function deletePhrase({ id }: { id: string }): Promise<boolean> {
@@ -116,18 +122,26 @@ export async function getCategory({
   return await categoryRepository.findOne({ where: { id } });
 }
 
-export async function getCategories(
-  {
-    isEnabled,
-  }: {
-    isEnabled: 'true' | 'false' | 'all';
-  } = { isEnabled: 'all' }
-): Promise<Category[]> {
-  const where = isEnabled === 'all' ? {} : { isEnabled: isEnabled === 'true' };
+export async function getCategories(): Promise<Category[]> {
   return await categoryRepository.find({
-    where,
     order: { order: 'ASC' },
   });
+}
+
+export async function getCategoriesBy(
+  key: keyof Category,
+  value: unknown,
+  options?: FindOneOptions<Category>
+): Promise<Category[]> {
+  return await categoryRepository.find({
+    where: { [key]: value },
+    order: { order: 'ASC' },
+    ...options,
+  });
+}
+
+export function getCategoryRepository(): Repository<Category> {
+  return categoryRepository;
 }
 
 export async function getOrCreateCategory(name: string): Promise<Category> {
@@ -267,13 +281,16 @@ export async function updatePhrase(
     partOfSpeech,
     expiresAt,
     createdByUser: twitchUser.displayName,
-    category: category ?? null,
+    category,
     metadata: {
       twitchAvatarUrl: twitchUser.profilePictureUrl,
       twitchUserId: twitchUser.id,
       twitchUsername: createdByUser,
     },
   });
+  if (!category) {
+    updatedPhrase.category = null;
+  }
 
   await phraseRepository.save(updatedPhrase);
   updatedPhrase.originalPhrase.forEach((originalPhrase) => {
