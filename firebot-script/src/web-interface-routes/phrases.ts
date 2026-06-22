@@ -6,6 +6,7 @@ import { Params } from '../params';
 import {
   addPhrase,
   deletePhrase,
+  getCategory,
   getPhrase,
   getPhraseRepository,
   updatePhrase,
@@ -22,10 +23,14 @@ export function crudPhrases(
     '/management/api/phrases',
     'GET',
     async (req: Request, res: Response) => {
-      const { id } = req.query as { id?: string };
+      const { id, categoryId } = req.query as {
+        id?: string;
+        categoryId?: string;
+      };
 
       const phrasesBase = getPhraseRepository()
         .createQueryBuilder('phrase')
+        .leftJoinAndSelect('phrase.category', 'category')
         .select([
           'phrase.id',
           'phrase.originalPhrase',
@@ -35,8 +40,20 @@ export function crudPhrases(
           'phrase.createdByUser',
           'phrase.usageCount',
           'phrase.metadata',
+          'category.id',
+          'category.name',
+          'category.isEnabled',
+          'category.order',
         ])
-        .where(id ? 'phrase.id = :id' : '', { id });
+        .where(id ? 'phrase.id = :id' : '', { id })
+        .andWhere(
+          categoryId !== '00000000-0000-0000-0000-000000000000'
+            ? 'category.id = :categoryId'
+            : 'category.id IS NULL',
+          {
+            categoryId,
+          }
+        );
 
       const phrases =
         req.query['includeDeleted'] === 'true' || id
@@ -63,6 +80,7 @@ export function crudPhrases(
         partOfSpeech,
         expiresAt,
         createdByUser,
+        categoryId,
       } = req.body;
 
       const newPhrase = await addPhrase({
@@ -71,6 +89,10 @@ export function crudPhrases(
         partOfSpeech,
         expiresAt,
         createdByUser,
+        category:
+          categoryId && categoryId !== '00000000-0000-0000-0000-000000000000'
+            ? await getCategory({ id: categoryId })
+            : null,
       });
 
       res.setHeader('Content-Type', 'application/json');
@@ -94,17 +116,24 @@ export function crudPhrases(
         partOfSpeech,
         expiresAt,
         createdByUser,
+        categoryId,
       } = req.body;
 
       const phrase = await getPhrase({ id });
 
       if (phrase) {
+        const category =
+          categoryId && categoryId !== '00000000-0000-0000-0000-000000000000'
+            ? await getCategory({ id: categoryId })
+            : null;
+
         const updatedPhrase = await updatePhrase(phrase, {
           originalPhrase,
           replacementPhrase,
           partOfSpeech,
           expiresAt,
           createdByUser,
+          category,
         });
 
         res.setHeader('Content-Type', 'application/json');
