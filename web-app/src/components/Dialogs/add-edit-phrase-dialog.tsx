@@ -17,9 +17,11 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
+import semver from 'semver';
 
 import { WEB } from '../../constants/app';
-import { partOfSpeech } from '../../constants/pos';
+import { partOfSpeechV1, partOfSpeechV2 } from '../../constants/pos';
+import { useVersion } from '../../hooks/use-version';
 import { DialogComponentProps } from '../EnhancedTable';
 
 interface AddEditPhraseDialogProps extends DialogComponentProps {
@@ -39,6 +41,7 @@ export function AddEditPhraseDialog({
   mode,
   open,
 }: AddEditPhraseDialogProps) {
+  const { scriptVersion } = useVersion();
   const dialogTitle = useMemo(() => {
     return mode === 'add' ? 'Add Phrase' : 'Edit Phrase';
   }, [mode]);
@@ -72,7 +75,7 @@ export function AddEditPhraseDialog({
                 .map((phrase) => phrase.trim());
 
         const newPhraseData = {
-          originalPhrase: [...originalPhraseArray],
+          originalPhrase: originalPhraseArray,
           replacementPhrase,
           partOfSpeech,
           expiresAt:
@@ -145,65 +148,72 @@ export function AddEditPhraseDialog({
   );
 
   return (
-    <Dialog
-      open={open as boolean}
-      slotProps={{
-        paper: {
-          component: 'form',
-          onSubmit,
-        },
-      }}
-    >
-      <DialogTitle>{dialogTitle}</DialogTitle>
-      <DialogContent>
-        <DialogContentText></DialogContentText>
-        <TextField
-          id='id'
-          name='id'
-          type='hidden'
-          value={phraseData?.id}
-          variant='standard'
-        />
-        <TextField
-          autoFocus
-          defaultValue={
-            !phraseData?.originalPhrase[0].startsWith('__') &&
-            !phraseData?.originalPhrase[0].endsWith('__')
-              ? phraseData?.originalPhrase.join(', ')
-              : ''
-          }
-          fullWidth
-          id='originalPhrase'
-          label='Original Phrase'
-          margin='dense'
-          name='originalPhrase'
-          type='text'
-          variant='standard'
-        />
-        <TextField
-          defaultValue={phraseData?.replacementPhrase}
-          fullWidth
-          id='replacementPhrase'
-          label='Replacement Phrase'
-          margin='dense'
-          name='replacementPhrase'
-          required
-          type='text'
-          variant='standard'
-        />
-        <FormControl fullWidth margin='dense' variant='standard'>
-          <InputLabel id='partOfSpeechLabel'>Part of Speech</InputLabel>
-          <Select
-            defaultValue={phraseData?.partOfSpeech}
-            inputProps={{ id: 'partOfSpeech', name: 'partOfSpeech' }}
-            label='Part of Speech'
-            labelId='partOfSpeechLabel'
-            margin='dense'
-            required
+    <Dialog open={open as boolean}>
+      <Box
+        component='form'
+        onSubmit={onSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <DialogTitle>{dialogTitle}</DialogTitle>
+        <DialogContent>
+          <DialogContentText />
+          <TextField
+            id='id'
+            name='id'
+            type='hidden'
+            value={phraseData?.id ?? ''}
             variant='standard'
-          >
-            {Object.entries(partOfSpeech).map(
-              ([tag, { description, examples }]) => (
+          />
+          <TextField
+            autoFocus
+            defaultValue={
+              phraseData?.originalPhrase?.[0] &&
+              !phraseData.originalPhrase[0].startsWith('__') &&
+              !phraseData.originalPhrase[0].endsWith('__')
+                ? phraseData.originalPhrase.join(', ')
+                : ''
+            }
+            fullWidth
+            id='originalPhrase'
+            label='Original Phrase'
+            margin='dense'
+            name='originalPhrase'
+            type='text'
+            variant='standard'
+          />
+          <TextField
+            defaultValue={phraseData?.replacementPhrase ?? ''}
+            fullWidth
+            id='replacementPhrase'
+            label='Replacement Phrase'
+            margin='dense'
+            name='replacementPhrase'
+            required
+            type='text'
+            variant='standard'
+          />
+          <FormControl fullWidth margin='dense' variant='standard'>
+            <InputLabel id='partOfSpeechLabel'>Part of Speech</InputLabel>
+            <Select
+              defaultValue={phraseData?.partOfSpeech ?? ''}
+              inputProps={{
+                id: 'partOfSpeech',
+                name: 'partOfSpeech',
+              }}
+              label='Part of Speech'
+              labelId='partOfSpeechLabel'
+              margin='dense'
+              required
+              variant='standard'
+            >
+              {Object.entries(
+                semver.satisfies(scriptVersion ?? '1.0.0', '>=1.2.0')
+                  ? partOfSpeechV2
+                  : partOfSpeechV1
+              ).map(([tag, { description, examples }]) => (
                 <MenuItem key={tag} value={tag}>
                   <Box
                     sx={{
@@ -215,7 +225,12 @@ export function AddEditPhraseDialog({
                   >
                     <Box>
                       {description}{' '}
-                      <Box sx={{ color: '#bbb', display: 'inline' }}>
+                      <Box
+                        component='span'
+                        sx={{
+                          color: '#bbb',
+                        }}
+                      >
                         ({tag})
                       </Box>
                     </Box>
@@ -224,53 +239,53 @@ export function AddEditPhraseDialog({
                     </Tooltip>
                   </Box>
                 </MenuItem>
-              )
-            )}
-          </Select>
-        </FormControl>
-        {mode === 'add' ? (
+              ))}
+            </Select>
+          </FormControl>
+          {mode === 'add' ? (
+            <TextField
+              fullWidth
+              id='expiresInDays'
+              label='Expires In Days'
+              margin='dense'
+              name='expiresInDays'
+              type='number'
+              variant='standard'
+            />
+          ) : (
+            <DateTimePicker
+              defaultValue={
+                phraseData?.expiresAt ? dayjs(phraseData.expiresAt) : null
+              }
+              disablePast
+              label='Expires At'
+              name='expiresAt'
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  id: 'expiresAt',
+                  margin: 'dense',
+                  variant: 'standard',
+                },
+              }}
+            />
+          )}
           <TextField
+            defaultValue={phraseData?.createdByUser ?? ''}
             fullWidth
-            id='expiresInDays'
-            label='Expires In Days'
+            id='createdByUser'
+            label='Created By User'
             margin='dense'
-            name='expiresInDays'
-            type='number'
+            name='createdByUser'
+            type='text'
             variant='standard'
           />
-        ) : (
-          <DateTimePicker
-            defaultValue={
-              phraseData?.expiresAt ? dayjs(phraseData?.expiresAt) : null
-            }
-            disablePast
-            label='Expires At'
-            name='expiresAt'
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                id: 'expiresAt',
-                margin: 'dense',
-                variant: 'standard',
-              },
-            }}
-          />
-        )}
-        <TextField
-          defaultValue={phraseData?.createdByUser}
-          fullWidth
-          id='createdByUser'
-          label='Created By User'
-          margin='dense'
-          name='createdByUser'
-          type='text'
-          variant='standard'
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type='submit'>Save</Button>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button type='submit'>Save</Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 }
