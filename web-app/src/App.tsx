@@ -10,6 +10,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Header } from './components/Header';
 import { WEB } from './constants/app';
+import { CategoryProvider } from './providers/category-provider';
 import { VersionProvider } from './providers/version-provider';
 import { Routes } from './routes';
 
@@ -25,22 +26,28 @@ export default function App() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter basename={WEB.BASE_ROUTE}>
           <VersionProvider>
-            <GlobalStyles
-              styles={(theme) => ({
-                body: {
-                  backgroundColor: theme.palette.background.default,
-                  color: theme.palette.text.primary,
-                  margin: 0,
-                  padding: 0,
-                },
-              })}
-            />
-            <Header />
-            <Container
-              sx={{ mx: 'auto', px: '48px !important', py: '24px !important' }}
-            >
-              <Routes />
-            </Container>
+            <CategoryProvider>
+              <GlobalStyles
+                styles={(theme) => ({
+                  body: {
+                    backgroundColor: theme.palette.background.default,
+                    color: theme.palette.text.primary,
+                    margin: 0,
+                    padding: 0,
+                  },
+                })}
+              />
+              <Header />
+              <Container
+                sx={{
+                  mx: 'auto',
+                  px: '48px !important',
+                  py: '24px !important',
+                }}
+              >
+                <Routes />
+              </Container>
+            </CategoryProvider>
           </VersionProvider>
         </BrowserRouter>
       </LocalizationProvider>

@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 
 import { Firebutt } from './firebutt';
 import { Params } from './params';
+import { crudCategories } from './web-interface-routes/categories';
 import { getScriptVersion } from './web-interface-routes/get-script-version';
 import { crudPhrases } from './web-interface-routes/phrases';
 import { rqUsageStatistics } from './web-interface-routes/usage-statistics';
@@ -36,7 +37,11 @@ const singlePageAppHtml = `
 
 export function register(
   _: Firebutt,
-  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    firebot,
+    modules,
+    parameters,
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const { httpServer } = modules;
 
@@ -78,6 +83,7 @@ export function register(
   );
 
   getScriptVersion(_, { firebot, modules, parameters });
+  crudCategories(_, { firebot, modules, parameters });
   crudPhrases(_, { firebot, modules, parameters });
   rqUsageStatistics(_, { firebot, modules, parameters });
 }

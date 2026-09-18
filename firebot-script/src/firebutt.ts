@@ -17,6 +17,10 @@ import {
   registerFirebuttAddRemovePhraseEffectType,
   registerFirebuttUpdateResponseProbablityEffectType,
 } from './custom-effect';
+import {
+  register as registerEventManager,
+  unregister as unregisterEventManager,
+} from './event-manager';
 import { scriptOutputName } from '../package.json';
 import { registerFirebuttResponseProbablityReplaceVariable } from './custom-replace-variable';
 import {
@@ -34,6 +38,7 @@ import { redirectConsole } from './utils/local-console';
 import { register as registerWebInterface } from './web-interface';
 
 export class Firebutt {
+  private _category: string;
   private _dataSource: DataSource;
   private _firebot: RunRequest<Params>['firebot'];
   private _modules: ScriptModules;
@@ -45,6 +50,7 @@ export class Firebutt {
     { firebot, parameters, modules }: RunRequest<Params>,
     dataSource: DataSource
   ) {
+    this._category = 'unknown';
     this._dataSource = dataSource;
     this._firebot = firebot;
     this._modules = modules;
@@ -62,6 +68,10 @@ export class Firebutt {
       )
     );
     (async () => await this.register())();
+  }
+
+  getCategory() {
+    return this._category;
   }
 
   getDataSource() {
@@ -100,6 +110,11 @@ export class Firebutt {
 
     try {
       await registerNotificationManager(this, {
+        firebot: this._firebot,
+        modules: this._modules,
+        parameters: this._parameters,
+      });
+      await registerEventManager(this, {
         firebot: this._firebot,
         modules: this._modules,
         parameters: this._parameters,
@@ -154,6 +169,10 @@ export class Firebutt {
     }
   }
 
+  setCategory(category: string) {
+    this._category = category;
+  }
+
   unregister() {
     const { logger } = this._modules;
 
@@ -161,6 +180,7 @@ export class Firebutt {
       unregisterChatClient();
       unregisterPhraseManager();
       unregisterNotificationManager();
+      unregisterEventManager();
       logger.info('Firebutt unregistered successfully');
     } catch (error) {
       if (error instanceof Error) {

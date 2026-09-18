@@ -63,7 +63,7 @@ export async function getUsageStatistics(
 
 export async function register(
   firebutt: Firebutt,
-  _: Omit<RunRequest<Params>, 'trigger'>
+  _: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   usageStatisticRepository = firebutt
     .getDataSource()

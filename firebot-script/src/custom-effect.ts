@@ -16,7 +16,9 @@ import {
 
 export function registerFirebuttAddRemovePhraseEffectType(
   _: Firebutt,
-  { modules: { effectManager } }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    modules: { effectManager },
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const firebuttEffectType: Firebot.EffectType<AddRemoveEffectModel> = {
     definition: {
@@ -112,7 +114,9 @@ export function registerFirebuttAddRemovePhraseEffectType(
 
 export function registerFirebuttUpdateResponseProbablityEffectType(
   firebutt: Firebutt,
-  { modules: { effectManager } }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    modules: { effectManager },
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const firebuttEffectType: Firebot.EffectType<UpdateResponseProbablityEffectModel> =
     {

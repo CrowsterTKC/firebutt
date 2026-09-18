@@ -9,6 +9,8 @@ import { AddMetadataPhraseIdFkeyToUsageStatistics1740929292291 } from './2025030
 import { AddMetadataToPhrases1743510827528 } from './20250401053347-add_metadata_to_phrases';
 import { AddDefaultPhrases1743512080156 } from './20250401055440-add_default_phrases';
 import { UpdatePartOfSpeech1789562029310 } from './20260916053349-update_part_of_speech';
+import { CreateCategories1778254461267 } from './20260508083421-create_categories';
+import { AddCategoryToPhrases1778422667924 } from './20260510071747-add_category_to_phrases';
 // import statements above
 
 export const migrations: MixedList<string | Function> = [
@@ -20,5 +22,7 @@ export const migrations: MixedList<string | Function> = [
   AddMetadataToPhrases1743510827528,
   AddDefaultPhrases1743512080156,
   UpdatePartOfSpeech1789562029310,
+  CreateCategories1778254461267,
+  AddCategoryToPhrases1778422667924,
   // migration scripts above
 ];

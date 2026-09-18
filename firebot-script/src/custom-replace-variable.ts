@@ -6,7 +6,9 @@ import { Params } from './params';
 
 export async function registerFirebuttResponseProbablityReplaceVariable(
   firebutt: Firebutt,
-  { modules: { replaceVariableManager } }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    modules: { replaceVariableManager },
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const firebotReplaceVariable: ReplaceVariable = {
     definition: {
