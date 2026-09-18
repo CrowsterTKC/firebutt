@@ -20,7 +20,7 @@ import { useCallback, useMemo } from 'react';
 import semver from 'semver';
 
 import { WEB } from '../../constants/app';
-import { partOfSpeech } from '../../constants/pos';
+import { partOfSpeechV1, partOfSpeechV2 } from '../../constants/pos';
 import { useCategory } from '../../hooks/use-category';
 import { useVersion } from '../../hooks/use-version';
 import { DialogComponentProps } from '../EnhancedTable';
@@ -50,7 +50,7 @@ export function AddEditPhraseDialog({
   }, [mode]);
 
   const onSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SubmitEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const {
@@ -217,30 +217,30 @@ export function AddEditPhraseDialog({
             required
             variant='standard'
           >
-            {Object.entries(partOfSpeech).map(
-              ([tag, { description, examples }]) => (
-                <MenuItem key={tag} value={tag}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      width: '100%',
-                    }}
-                  >
-                    <Box>
-                      {description}{' '}
-                      <Box sx={{ color: '#bbb', display: 'inline' }}>
-                        ({tag})
-                      </Box>
-                    </Box>
-                    <Tooltip title={examples.join(', ')} placement='right'>
-                      <InfoOutlined sx={{ color: '#bbb' }} />
-                    </Tooltip>
+            {Object.entries(
+              semver.satisfies(scriptVersion ?? '1.0.0', '>=1.2.0')
+                ? partOfSpeechV2
+                : partOfSpeechV1
+            ).map(([tag, { description, examples }]) => (
+              <MenuItem key={tag} value={tag}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                  }}
+                >
+                  <Box>
+                    {description}{' '}
+                    <Box sx={{ color: '#bbb', display: 'inline' }}>({tag})</Box>
                   </Box>
-                </MenuItem>
-              )
-            )}
+                  <Tooltip title={examples.join(', ')} placement='right'>
+                    <InfoOutlined sx={{ color: '#bbb' }} />
+                  </Tooltip>
+                </Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         {semver.satisfies(scriptVersion, '>=2.0.0') && (

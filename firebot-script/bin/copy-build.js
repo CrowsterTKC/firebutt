@@ -62,4 +62,5 @@ const getFirebotScriptsFolderPath = () => {
     join(firebotScriptsFolderPath, 'sql-wasm.wasm')
   );
   console.log(`Successfully copied ${scriptName} to Firebot scripts folder.`);
+  console.log(`Build completed: ${new Date().toLocaleString()}`);
 })();

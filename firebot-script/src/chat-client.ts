@@ -2,7 +2,8 @@ import { RunRequest } from '@crowbartools/firebot-custom-scripts-types';
 import { Effects } from '@crowbartools/firebot-custom-scripts-types/types/effects';
 import { ChatClient, ChatMessage } from '@twurple/chat';
 import { plural } from 'pluralize';
-import { Lexer, Tagger } from 'pos';
+import { default as model } from 'wink-eng-lite-web-model';
+import { default as winkNLP } from 'wink-nlp';
 
 import { Phrase } from './entities/phrase';
 import { Firebutt } from './firebutt';
@@ -123,15 +124,19 @@ async function execute(
       phrases
     ).at(randomIndex) as [string, Phrase];
 
-    const lexer = new Lexer();
-    const tagger = new Tagger();
-    const taggedWords = tagger.tag(lexer.lex(messageText));
+    const nlp = winkNLP(model);
+    const doc = nlp.readDoc(messageText);
+    const taggedWords = doc
+      .tokens()
+      .out()
+      .map((token, index) => [token, doc.tokens().out(nlp.its.pos)[index]]);
 
     const matchingPOSPhrases = taggedWords.filter(([, pos]) => {
       const replacementPhrasePOS = partOfSpeech;
-      const [, pluralReplacementPhrasePOS] = tagger.tag([
-        plural(replacementPhrase),
-      ])[0];
+      const pluralReplacementPhrasePOS = nlp
+        .readDoc(plural(replacementPhrase))
+        .tokens()
+        .out(nlp.its.pos)[0];
 
       if (pos === replacementPhrasePOS || pos === pluralReplacementPhrasePOS) {
         return true;

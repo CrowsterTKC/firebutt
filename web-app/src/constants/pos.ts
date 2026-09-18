@@ -1,4 +1,4 @@
-export const partOfSpeech: PartOfSpeech = {
+export const partOfSpeechV1: PartOfSpeech = {
   CC: {
     description: 'Coordinating conjunction',
     examples: ['and', 'but', 'or', 'nor', 'for', 'so', 'yet'],
@@ -184,5 +184,82 @@ export const partOfSpeech: PartOfSpeech = {
   ')': {
     description: 'Right parenthesis',
     examples: [')'],
+  },
+};
+
+export const partOfSpeechV2: PartOfSpeech = {
+  ADJ: {
+    description: 'Adjective',
+    examples: ['happy', 'large', 'red', 'quiet', 'interesting'],
+  },
+  ADP: {
+    description: 'Adposition, such as a preposition',
+    examples: ['in', 'on', 'at', 'over', 'through'],
+  },
+  ADV: {
+    description: 'Adverb',
+    examples: ['very', 'quickly', 'soon', 'carefully', 'quietly'],
+  },
+  AUX: {
+    description: 'Auxiliary verb',
+    examples: ['is', 'am', 'are', 'do', 'should', 'must', 'will'],
+  },
+  CCONJ: {
+    description: 'Coordinating conjunction',
+    examples: ['and', 'or', 'but'],
+  },
+  DET: {
+    description: 'Determiner',
+    examples: ['the', 'a', 'an', 'this', 'that', 'my', 'some'],
+  },
+  INTJ: {
+    description: 'Interjection',
+    examples: ['wow', 'oh', 'hey', 'ouch', 'alas'],
+  },
+  NOUN: {
+    description: 'Common noun',
+    examples: ['house', 'table', 'dog', 'computer', 'book'],
+  },
+  NUM: {
+    description: 'Numeral',
+    examples: ['one', 'five', '20', '100', '3.14'],
+  },
+  PART: {
+    description: 'Particle',
+    examples: ['not', "n't", "'s"],
+  },
+  PRON: {
+    description: 'Pronoun',
+    examples: ['I', 'you', 'he', 'she', 'they', 'who', 'myself'],
+  },
+  PROPN: {
+    description: 'Proper noun',
+    examples: ['London', 'Chicago', 'Maria', 'Google', 'Monday'],
+  },
+  PUNCT: {
+    description: 'Punctuation',
+    examples: ['.', ',', '!', '?', ':', ';'],
+  },
+  SCONJ: {
+    description: 'Subordinating conjunction',
+    examples: ['because', 'if', 'while', 'since', 'although'],
+  },
+  SYM: {
+    description: 'Symbol',
+    examples: ['$', '+', '=', '%', '😝', '🌎'],
+  },
+  VERB: {
+    description: 'Verb',
+    examples: ['run', 'sing', 'develop', 'write', 'build'],
+  },
+  X: {
+    description:
+      'Other token that cannot be assigned a standard part-of-speech tag',
+    examples: ['unknown token', 'foreign expression'],
+  },
+  SPACE: {
+    description:
+      'Whitespace such as a newline, tab, carriage return, or combination of whitespace characters',
+    examples: ['\\n', '\\t', '\\r', '\\r\\n'],
   },
 };
