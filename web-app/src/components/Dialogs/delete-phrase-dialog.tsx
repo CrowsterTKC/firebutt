@@ -28,7 +28,7 @@ export function DeletePhraseDialog({
   }, [phraseData]);
 
   const onSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SubmitEvent<HTMLFormElement>) => {
       event.preventDefault();
 
       const apiUrl = `${WEB.BASE_ORIGIN}${WEB.API_ROUTE}/phrases`;

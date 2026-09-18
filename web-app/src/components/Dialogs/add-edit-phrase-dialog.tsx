@@ -17,9 +17,11 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useCallback, useMemo } from 'react';
+import semver from 'semver';
 
 import { WEB } from '../../constants/app';
-import { partOfSpeech } from '../../constants/pos';
+import { partOfSpeechV1, partOfSpeechV2 } from '../../constants/pos';
+import { useVersion } from '../../hooks/use-version';
 import { DialogComponentProps } from '../EnhancedTable';
 
 interface AddEditPhraseDialogProps extends DialogComponentProps {
@@ -39,12 +41,14 @@ export function AddEditPhraseDialog({
   mode,
   open,
 }: AddEditPhraseDialogProps) {
+  const { scriptVersion } = useVersion();
+
   const dialogTitle = useMemo(() => {
     return mode === 'add' ? 'Add Phrase' : 'Edit Phrase';
   }, [mode]);
 
   const onSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SubmitEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
       const {
@@ -202,30 +206,30 @@ export function AddEditPhraseDialog({
             required
             variant='standard'
           >
-            {Object.entries(partOfSpeech).map(
-              ([tag, { description, examples }]) => (
-                <MenuItem key={tag} value={tag}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      width: '100%',
-                    }}
-                  >
-                    <Box>
-                      {description}{' '}
-                      <Box sx={{ color: '#bbb', display: 'inline' }}>
-                        ({tag})
-                      </Box>
-                    </Box>
-                    <Tooltip title={examples.join(', ')} placement='right'>
-                      <InfoOutlined sx={{ color: '#bbb' }} />
-                    </Tooltip>
+            {Object.entries(
+              semver.satisfies(scriptVersion ?? '1.0.0', '>=1.2.0')
+                ? partOfSpeechV2
+                : partOfSpeechV1
+            ).map(([tag, { description, examples }]) => (
+              <MenuItem key={tag} value={tag}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                  }}
+                >
+                  <Box>
+                    {description}{' '}
+                    <Box sx={{ color: '#bbb', display: 'inline' }}>({tag})</Box>
                   </Box>
-                </MenuItem>
-              )
-            )}
+                  <Tooltip title={examples.join(', ')} placement='right'>
+                    <InfoOutlined sx={{ color: '#bbb' }} />
+                  </Tooltip>
+                </Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         {mode === 'add' ? (

@@ -3,7 +3,8 @@ import {
   RunRequest,
 } from '@crowbartools/firebot-custom-scripts-types';
 import { EffectScope } from '@crowbartools/firebot-custom-scripts-types/types/effects';
-import { Lexer, Tagger } from 'pos';
+import { default as model } from 'wink-eng-lite-web-model';
+import { default as winkNLP } from 'wink-nlp';
 
 import { Firebutt } from './firebutt';
 import { Params } from './params';
@@ -74,9 +75,12 @@ export function registerFirebuttAddRemovePhraseEffectType(
       const { action, originalPhrase, replacementPhrase, expiresInDays } =
         event.effect;
       if (action === 'Add Phrase') {
-        const lexer = new Lexer();
-        const tagger = new Tagger();
-        const taggedWords = tagger.tag(lexer.lex(originalPhrase));
+        const nlp = winkNLP(model);
+        const doc = nlp.readDoc(originalPhrase);
+        const taggedWords = doc
+          .tokens()
+          .out()
+          .map((token, index) => [token, doc.tokens().out(nlp.its.pos)[index]]);
 
         await addPhrase({
           originalPhrase:
