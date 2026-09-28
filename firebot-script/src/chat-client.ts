@@ -12,6 +12,7 @@ import { getPhraseCache } from './phrase-manager';
 import { addUsageStatistic } from './usage-statistic';
 
 let chatClient: ChatClient;
+const nlp = winkNLP(model);
 
 export function register(
   firebutt: Firebutt,
@@ -119,7 +120,6 @@ async function execute(
       phrases
     ).at(randomIndex) as [string, Phrase];
 
-    const nlp = winkNLP(model);
     const doc = nlp.readDoc(messageText);
     const taggedWords = doc
       .tokens()
