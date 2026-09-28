@@ -23,7 +23,7 @@ let notificationRepository: Repository<Notification> =
 let checkForNotificationsJob: NodeJS.Timeout | null = null;
 
 export async function addNotification(
-  { modules }: Omit<RunRequest<Params>, 'trigger'>,
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>,
   {
     id: remoteId,
     guid: remoteGuid,
@@ -117,7 +117,11 @@ export async function getNotificationsBy(
 
 export async function register(
   firebutt: Firebutt,
-  { firebot, modules, parameters }: Omit<RunRequest<Params>, 'trigger'>
+  {
+    firebot,
+    modules,
+    parameters,
+  }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   notificationRepository = firebutt.getDataSource().getRepository(Notification);
   checkForNotificationsJob = setInterval(
@@ -140,7 +144,7 @@ async function checkForNotifications({
   firebot,
   modules,
   parameters,
-}: Omit<RunRequest<Params>, 'trigger'>) {
+}: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>) {
   const notifications = (await (await fetch(NOTIFCATION_URL)).json()) as Omit<
     Notification,
     'firebotId | insertedAt | updatedAt | deletedAt'

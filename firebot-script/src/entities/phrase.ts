@@ -3,10 +3,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
   VirtualColumn,
 } from 'typeorm';
+
+import { Category } from './categories';
 
 @Entity({ name: 'phrases' })
 export class Phrase {
@@ -30,6 +34,14 @@ export class Phrase {
 
   @Column({ name: 'created_by_user' })
   createdByUser!: string;
+
+  @ManyToOne(() => Category, (category) => category.phrases, {
+    eager: true,
+    nullable: true,
+    orphanedRowAction: 'soft-delete',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category?: Category | null = null;
 
   @CreateDateColumn({ name: 'inserted_at' })
   insertedAt!: Date;

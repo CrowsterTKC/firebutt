@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { CategorySwitcher } from '../components/CategorySwitcher';
 import { PartOfSpeech, TwitchUser } from '../components/Columns';
 import { AddEditPhraseDialog, DeletePhraseDialog } from '../components/Dialogs';
 import { EnhancedColumn, EnhancedTable } from '../components/EnhancedTable';
 import { WEB } from '../constants/app';
+import { useCategory } from '../hooks/use-category';
 
 export default function PhraseManagement() {
+  const { selectedCategory: categoryId } = useCategory();
   const [rows, setRows] = useState<PhraseData[]>([]);
-  const [refresh, setRefresh] = useState(true);
 
   const columns: EnhancedColumn<PhraseData>[] = [
     {
@@ -45,32 +47,31 @@ export default function PhraseManagement() {
     },
   ];
 
-  const handleRefresh = useCallback(() => {
-    setRefresh(true);
-  }, [setRefresh]);
+  const handleRefresh = useCallback(async () => {
+    const apiUrl = `${WEB.BASE_ORIGIN}${WEB.API_ROUTE}/phrases?categoryId=${categoryId}`;
+    const response = await fetch(apiUrl);
+    const data = (await response.json()).phrases as PhraseData[];
+    setRows(data);
+  }, [categoryId]);
 
   useEffect(() => {
-    if (!refresh) return;
-    (async () => {
-      const apiUrl = `${WEB.BASE_ORIGIN}${WEB.API_ROUTE}/phrases`;
-      const response = await fetch(apiUrl);
-      const data = (await response.json()).phrases as PhraseData[];
-      setRows(data);
-    })();
-    setRefresh(false);
-  }, [refresh, setRows]);
+    handleRefresh();
+  }, [categoryId, handleRefresh]);
 
   return (
-    <EnhancedTable<PhraseData>
-      addItemComponent={AddEditPhraseDialog}
-      columns={columns}
-      defaultColumnForOrderBy='originalPhrase'
-      deleteItemComponent={DeletePhraseDialog}
-      editItemComponent={AddEditPhraseDialog}
-      entityNameForTooltips='Phrase'
-      handleRefresh={handleRefresh}
-      rows={rows}
-      tableTitle='Phrase Management'
-    />
+    <>
+      <CategorySwitcher />
+      <EnhancedTable<PhraseData>
+        addItemComponent={AddEditPhraseDialog}
+        columns={columns}
+        defaultColumnForOrderBy='originalPhrase'
+        deleteItemComponent={DeletePhraseDialog}
+        editItemComponent={AddEditPhraseDialog}
+        entityNameForTooltips='Phrase'
+        handleRefresh={handleRefresh}
+        rows={rows}
+        tableTitle='Phrase Management'
+      />
+    </>
   );
 }

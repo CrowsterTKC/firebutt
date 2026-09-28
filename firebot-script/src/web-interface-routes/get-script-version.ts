@@ -7,7 +7,7 @@ import { Params } from '../params';
 
 export function getScriptVersion(
   _: Firebutt,
-  { modules }: Omit<RunRequest<Params>, 'trigger'>
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const { httpServer } = modules;
 

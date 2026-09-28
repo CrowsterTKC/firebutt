@@ -6,6 +6,7 @@ interface PhraseData {
   expiresAt: Date | null;
   usageCount: number;
   createdByUser: string;
+  categoryId: string | null;
   metadata: {
     twitchAvatarUrl?: string;
     twitchUserId?: string;

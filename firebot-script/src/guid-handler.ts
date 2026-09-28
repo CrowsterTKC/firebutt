@@ -1,11 +1,12 @@
 import { match, P } from 'ts-pattern';
 import { v4 as uuid } from 'uuid';
 
+import { Category } from './entities/categories';
 import { Notification } from './entities/notification';
 import { Phrase } from './entities/phrase';
 import { UsageStatistic } from './entities/usage-statistics';
 import { getNotification } from './notification-manager';
-import { getPhrase } from './phrase-manager';
+import { getCategory, getPhrase } from './phrase-manager';
 import {
   NewGuidProps,
   NewGuidResponse,
@@ -31,11 +32,15 @@ export function newGuid({
 export async function objectFromGuid({
   guid,
 }: ObjectFromGuidProps): Promise<
-  Notification | Phrase | UsageStatistic | null
+  Category | Notification | Phrase | UsageStatistic | null
 > {
   const [guidTail] = parseGuidForProcessing(guid).reverse();
 
   const object = match(guidTail)
+    .with(
+      { id: P.select(), type: 'category' },
+      async (id) => await getCategory({ id })
+    )
     .with(
       { id: P.select(), type: 'notification' },
       async (id) => await getNotification({ id })

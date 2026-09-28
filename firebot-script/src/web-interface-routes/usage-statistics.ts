@@ -8,7 +8,7 @@ import { getUsageStatistics } from '../usage-statistic';
 
 export function rqUsageStatistics(
   firebutt: Firebutt,
-  { modules }: Omit<RunRequest<Params>, 'trigger'>
+  { modules }: Omit<RunRequest<Params>, 'trigger' | 'scriptDataDir'>
 ) {
   const { httpServer } = modules;
 
